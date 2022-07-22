@@ -975,7 +975,7 @@ GNOME版的 <code>kdeconnect</code>, 用于电脑与手机互连 (一个网下),
 <p><strong>注意</strong><br>
 以上命令仅仅移除 Dash 中的app, 但仍然会留下一个空的Dash栏, 彻底隐藏, 请使用 <code>Just-perfection</code> 扩展<br>
 此扩展得到官方支持, 可以将桌面 <code>化简</code>, 包括Dash<br>
-如果你只是使用扩展, 将 Dash 隐藏, 未置空列表, 相关快捷键仍然生效, 需被禁用而彻底消除Dash, 请看下面的<a href="#jin-yong-kuai-jie-jian">自定义快捷键/禁用</a></p>
+如果你只是使用扩展, 将 Dash 隐藏, 未置空列表, 相关快捷键仍然生效, 需被禁用而彻底消除Dash, 请看下面的<a href="#jin-yong-kuai-jie-jian">禁用快捷键</a></p>
 </div>
 <ul class="lvl-0">
 <li class="lvl-2">
