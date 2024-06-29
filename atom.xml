@@ -1,0 +1,1931 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title></title>
+    <link rel="self" type="application/atom+xml" href="https://jedsek.xyz/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://jedsek.xyz"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2024-06-28T00:00:00+00:00</updated>
+    <id>https://jedsek.xyz/atom.xml</id>
+    <entry xml:lang="en">
+        <title>SICP习题答案</title>
+        <published>2024-06-28T00:00:00+00:00</published>
+        <updated>2024-06-28T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/sicp-answer/"/>
+        <id>https://jedsek.xyz/categories/sicp-answer/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/sicp-answer/">&lt;p&gt;放一些 SICP (计算机程序的构造与解释) 的习题答案, 点击方框即可进入对应解题&lt;br &#x2F;&gt;
+以年为单位更新! 咕咕咕!  &lt;del&gt;(当创建本页面时, 我也就看到第四章)&lt;&#x2F;del&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;如果你不知道如何搭建学习 SICP 的环境, 请移步至: &lt;a href=&quot;&#x2F;posts&#x2F;sicp-setup&quot;&gt;sicp-setup&lt;&#x2F;a&gt;&lt;br &#x2F;&gt;
+关于 SICP 的思考与杂项, 请移步至: &lt;a href=&quot;&#x2F;categories&#x2F;sicp-thinking&quot;&gt;sicp-thinking&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;di-yi-zhang&quot;&gt;第一章&lt;&#x2F;h1&gt;
+&lt;div class=&quot;sicp-answer&quot;&gt;
+&lt;p&gt;&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-1&quot;&gt;1-1&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-2&quot;&gt;1-2&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-3&quot;&gt;1-3&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-4&quot;&gt;1-4&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-5&quot;&gt;1-5&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-6&quot;&gt;1-6&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-7&quot;&gt;1-7&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-8&quot;&gt;1-8&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-9&quot;&gt;1-9&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-10&quot;&gt;1-10&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-11&quot;&gt;1-11&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-12&quot;&gt;1-12&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-13&quot;&gt;1-13&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-14&quot;&gt;1-14&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-15&quot;&gt;1-15&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-16&quot;&gt;1-16&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-17&quot;&gt;1-17&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-18&quot;&gt;1-18&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-19&quot;&gt;1-19&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-20&quot;&gt;1-20&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-22&quot;&gt;1-22&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-23&quot;&gt;1-23&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-24&quot;&gt;1-24&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-25&quot;&gt;1-25&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-26&quot;&gt;1-26&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-27&quot;&gt;1-27&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-28&quot;&gt;1-28&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-29&quot;&gt;1-29&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-30&quot;&gt;1-30&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-31&quot;&gt;1-31&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-32&quot;&gt;1-32&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-33&quot;&gt;1-33&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-34&quot;&gt;1-34&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-35&quot;&gt;1-35&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-36&quot;&gt;1-36&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-37&quot;&gt;1-37&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-38&quot;&gt;1-38&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-39&quot;&gt;1-39&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-40&quot;&gt;1-40&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-41&quot;&gt;1-41&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-42&quot;&gt;1-42&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-43&quot;&gt;1-43&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-44&quot;&gt;1-44&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-45&quot;&gt;1-45&lt;&#x2F;a&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;sicp-answer&#x2F;1-46&quot;&gt;1-46&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;div&gt;
+&lt;hr &#x2F;&gt;
+&lt;h1 id=&quot;di-er-zhang&quot;&gt;第二章&lt;&#x2F;h1&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>SICP思考</title>
+        <published>2024-06-28T00:00:00+00:00</published>
+        <updated>2024-06-28T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/sicp-thinking/"/>
+        <id>https://jedsek.xyz/categories/sicp-thinking/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/sicp-thinking/">&lt;p&gt;放一些 SICP (计算机程序的构造与解释) 的思考&lt;br &#x2F;&gt;
+以年为单位更新! 咕咕咕!  &lt;del&gt;(当创建本页面时, 我也就看到第四章)&lt;&#x2F;del&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;如果你不知道如何搭建学习 SICP 的环境, 请移步至: &lt;a href=&quot;&#x2F;posts&#x2F;sicp-setup&quot;&gt;sicp-setup&lt;&#x2F;a&gt;&lt;br &#x2F;&gt;
+关于 SICP 的解题集, 请移步至: &lt;a href=&quot;&#x2F;categories&#x2F;sicp-answer&quot;&gt;sicp-answer&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;di-yi-zhang&quot;&gt;第一章&lt;&#x2F;h1&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>sicp-setup: 环境搭建</title>
+        <published>2024-06-28T00:00:00+00:00</published>
+        <updated>2024-06-28T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/sicp-setup/"/>
+        <id>https://jedsek.xyz/posts/sicp-setup/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;搭建学习《SICP》的环境 (racket语言)&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>gleam中的幽灵类型(phantom-type)</title>
+        <published>2024-05-20T00:00:00+00:00</published>
+        <updated>2024-05-20T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/gleam-phantom-type/"/>
+        <id>https://jedsek.xyz/posts/gleam-phantom-type/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;了解下 gleam 语言中的幽灵类型(phantom-type)吧&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>gleam中的use表达式</title>
+        <published>2024-05-19T00:00:00+00:00</published>
+        <updated>2024-05-19T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/gleam-use-expression/"/>
+        <id>https://jedsek.xyz/posts/gleam-use-expression/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;了解下 gleam 语言中的 use 表达式吧&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-typed-magic: 泛型关联类型(GATs)</title>
+        <published>2024-04-24T00:00:00+00:00</published>
+        <updated>2024-04-24T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-typed-magic/gats/"/>
+        <id>https://jedsek.xyz/posts/rust-typed-magic/gats/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;rust 中的 gat(泛型关联类型), HKT(高阶类型), type-constructor(类型构造器) 等概念&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>在Linux下畅玩明日方舟</title>
+        <published>2024-03-23T00:00:00+00:00</published>
+        <updated>2024-03-23T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/other/linux-arknights/"/>
+        <id>https://jedsek.xyz/posts/other/linux-arknights/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;在Linux下畅玩明日方舟, 包括按键自定义, MAA使用, 超宽屏视野, 直播推流等教程&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-typed-magic: 幽灵索引类型</title>
+        <published>2024-03-21T00:00:00+00:00</published>
+        <updated>2024-03-21T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-typed-magic/phantom-index-type/"/>
+        <id>https://jedsek.xyz/posts/rust-typed-magic/phantom-index-type/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;利用 &lt;code&gt;幽灵索引(phantom-index-type)&lt;&#x2F;code&gt; 进行函数调用自动推导的能力&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-typed-magic: 柯里化柯里化与过程过程宏</title>
+        <published>2024-03-03T00:00:00+00:00</published>
+        <updated>2024-03-03T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-typed-magic/curried-function/"/>
+        <id>https://jedsek.xyz/posts/rust-typed-magic/curried-function/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;学习闭包与函数, 了解柯里化的概念, 最后使用过程宏作为大杀器, 自动生成柯里化函数吧&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-typed-magic: 异构列表</title>
+        <published>2024-03-02T00:00:00+00:00</published>
+        <updated>2024-03-02T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-typed-magic/hlist-tuple/"/>
+        <id>https://jedsek.xyz/posts/rust-typed-magic/hlist-tuple/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/posts/rust-typed-magic/hlist-tuple/">&lt;blockquote&gt;
+&lt;p&gt;rust 中的&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-typed-magic</title>
+        <published>2024-02-28T00:00:00+00:00</published>
+        <updated>2024-02-28T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/rust-typed-magic/"/>
+        <id>https://jedsek.xyz/categories/rust-typed-magic/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/rust-typed-magic/">&lt;p&gt;来学习下 rust 中的类型魔法吧? (也叫作类型体操啦!!)&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;del&gt;啊啊啊啊啊啊啊啊&lt;&#x2F;del&gt;, 其实我不晓得到底该取什么名字, &lt;code&gt;type-challenge&lt;&#x2F;code&gt;? &lt;code&gt;type-exercise&lt;&#x2F;code&gt;? 可是咋好像也没有想出好多好多题的意思!&lt;br &#x2F;&gt;
+那么就叫 &lt;code&gt;type-gymnastics&lt;&#x2F;code&gt;, 英文里面的类型体操也是这样直接叫的吗? 可是 &lt;code&gt;gymnastics&lt;&#x2F;code&gt; 这个词好不直观简单的感觉!&lt;br &#x2F;&gt;
+所以还是叫作 &lt;code&gt;typed-magic&lt;&#x2F;code&gt; 吧, 意味着类型化的魔法, 将魔法寄宿于类型系统之中&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;del&gt;赋予了这么一个笨蛋中二的意义的我好像是有那么一点中二笨蛋的感觉? 该死, 你为什么要这么纠结名字啊喂!!!&lt;&#x2F;del&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;言归正传, 以下是目录, 随缘更新, 随时鸽子, 使命不达 (bushi)&lt;br &#x2F;&gt;
+说是类型体操, 其实也没有那么类型体操啦, 仅仅是些比较常见比较有趣的东西而已&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;code&gt;Note:&lt;&#x2F;code&gt;&lt;br &#x2F;&gt;
+本系列有部分章节涉及到 &lt;code&gt;宏(macro)&lt;&#x2F;code&gt; 的使用, 倘若你不了解, 可以看 &lt;a href=&quot;&#x2F;posts&#x2F;rust-typed-magic&#x2F;curried-function&quot;&gt;柯里柯里化与过程过程宏&lt;&#x2F;a&gt; 学习过程宏, 看 &lt;a href=&quot;&#x2F;categories&#x2F;rust-decl-macro&quot;&gt;声明宏&lt;&#x2F;a&gt; 学习声明宏&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-typed-magic&#x2F;gats&quot;&gt;泛型关联类型(GATs)&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-typed-magic&#x2F;hlist-tuple&quot;&gt;异构列表&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-typed-magic&#x2F;phantom-index-type&quot;&gt;幽灵索引类型&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-typed-magic&#x2F;curried-function&quot;&gt;柯里化柯里化与过程过程宏&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-terminal-p1~&gt; 跨平台的现代终端alacritty</title>
+        <published>2024-01-28T00:00:00+00:00</published>
+        <updated>2024-01-28T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-terminal-world/p1/"/>
+        <id>https://jedsek.xyz/posts/rust-terminal-world/p1/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将介绍 alacritty &amp;amp;&amp;amp; wezterm 两个 rust 开发的现代跨平台终端&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-terminal-p2~&gt; 终端中的窗口管理器zellij</title>
+        <published>2024-01-28T00:00:00+00:00</published>
+        <updated>2024-01-28T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-terminal-world/p2/"/>
+        <id>https://jedsek.xyz/posts/rust-terminal-world/p2/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将介绍 Zellij 这个工具, 同时涉及插件的内容&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-terminal-p3~&gt; 模态编辑器helix</title>
+        <published>2024-01-28T00:00:00+00:00</published>
+        <updated>2024-01-28T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-terminal-world/p3/"/>
+        <id>https://jedsek.xyz/posts/rust-terminal-world/p3/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将介绍 alacritty &amp;amp;&amp;amp; wezterm 两个 rust 开发的现代跨平台终端&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-tui-p3~&gt; 终端中的各种概念</title>
+        <published>2023-10-12T00:00:00+00:00</published>
+        <updated>2023-10-12T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-tui/p3/"/>
+        <id>https://jedsek.xyz/posts/rust-tui/p3/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;了解一下关于原始模式, 管道, 标准输出等的概念吧&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-atomics-and-locks-p3~&gt; 原子</title>
+        <published>2023-07-06T00:00:00+00:00</published>
+        <updated>2023-07-06T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-atomics-and-locks/p3/"/>
+        <id>https://jedsek.xyz/posts/rust-atomics-and-locks/p3/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;原子一词源自希腊语 ἄτομος, 意为不可分割的之物, 在计算机科学中被用于描述不可分割的操作: 要么完全完成, 要么没有发生&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-atomics-and-locks</title>
+        <published>2023-06-23T00:00:00+00:00</published>
+        <updated>2023-06-23T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/rust-atomics-and-locks/"/>
+        <id>https://jedsek.xyz/categories/rust-atomics-and-locks/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/rust-atomics-and-locks/">&lt;p&gt;此为关于 Rust 中并发编程的部分 包括原子类型与各类锁的概念&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-atomics-and-locks&#x2F;p1&quot;&gt;p1~&amp;gt; 系列说明&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-atomics-and-locks&#x2F;p2&quot;&gt;p2~&amp;gt; 基础概念&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-atomics-and-locks&#x2F;p3&quot;&gt;p3~&amp;gt; 原子&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-atomics-and-locks-p1~&gt; 系列说明</title>
+        <published>2023-06-23T00:00:00+00:00</published>
+        <updated>2023-06-23T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-atomics-and-locks/p1/"/>
+        <id>https://jedsek.xyz/posts/rust-atomics-and-locks/p1/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;欢迎来到 Rust 的 并发编程 系列&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-atomics-and-locks-p2~&gt; 基础概念</title>
+        <published>2023-06-23T00:00:00+00:00</published>
+        <updated>2023-06-23T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-atomics-and-locks/p2/"/>
+        <id>https://jedsek.xyz/posts/rust-atomics-and-locks/p2/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节我们将学习线程、互斥锁、条件变量、线程安全、共享和独占引用、内部可变性等内容&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-tui-p2~&gt; 基础架构</title>
+        <published>2023-06-22T00:00:00+00:00</published>
+        <updated>2023-06-22T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-tui/p2/"/>
+        <id>https://jedsek.xyz/posts/rust-tui/p2/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节我们将学习一个 tui 应用的基本架构&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust中那些常见的错误</title>
+        <published>2023-06-08T00:00:00+00:00</published>
+        <updated>2023-06-08T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-common-errors/"/>
+        <id>https://jedsek.xyz/posts/rust-common-errors/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;一起来见识下那些 rust 编程语言中常见的错误吧!&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>墨染樱下幽魂</title>
+        <published>2023-05-22T00:00:00+00:00</published>
+        <updated>2023-05-22T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/novels/墨染樱下幽魂/"/>
+        <id>https://jedsek.xyz/novels/墨染樱下幽魂/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/novels/墨染樱下幽魂/">&lt;span id=&quot;continue-reading&quot;&gt;&lt;&#x2F;span&gt;</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>浪潮涌没的终焉与永恒之爱</title>
+        <published>2023-05-21T00:00:00+00:00</published>
+        <updated>2023-05-21T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/novels/浪潮涌没的终焉与永恒之爱/"/>
+        <id>https://jedsek.xyz/novels/浪潮涌没的终焉与永恒之爱/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本文为《明日方舟》二创同人原创作品, 灵感来源于B站上的手书: 《无光同葬》&lt;br &#x2F;&gt;
+你可以通过观看以下视频, 即B站上的《无光同葬》, 来迅速了解斯卡蒂的形象与本文中博士对斯卡蒂的情感 (背景为海嗣if灭世线)&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-termianl-world</title>
+        <published>2023-01-28T00:00:00+00:00</published>
+        <updated>2023-01-28T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/rust-terminal-world/"/>
+        <id>https://jedsek.xyz/categories/rust-terminal-world/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/rust-terminal-world/">&lt;p&gt;本系列将介绍那些用 rust 编写的, 适用于终端的许多好用工具, 带有本人的主观喜爱倾向性, 风格比较自由&lt;br &#x2F;&gt;
+本系列可以看作工具的介绍与配置篇, 但可能还会涉及一些插件开发, 涉及 rust 代码, 所以其实不怎么分顺序~~&lt;&#x2F;p&gt;
+&lt;p&gt;总而言之就是我有啥 &quot;关于rust的终端工具&quot;, 是使用方面啦, 配置方面啦, 还是插件开发方面啦, 我只是随便扯扯我知道的一些东西, 仅此而已&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-terminal-world&#x2F;p1&quot;&gt;跨平台的现代终端alacritty&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-terminal-world&#x2F;p2&quot;&gt;终端中的窗口管理器zellij&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-terminal-world&#x2F;p3&quot;&gt;模态编辑器helix&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-iced-p4~&gt; 样式</title>
+        <published>2023-01-19T23:29:30+00:00</published>
+        <updated>2023-01-19T23:29:30+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust/gui/iced/p4-yang-shi/"/>
+        <id>https://jedsek.xyz/posts/rust/gui/iced/p4-yang-shi/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;学习如何在 iced 中设置部件的样式&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gtk4-p9~&gt; 设置持久化</title>
+        <published>2023-01-16T00:00:00+00:00</published>
+        <updated>2023-01-16T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-gtk4/p9/"/>
+        <id>https://jedsek.xyz/posts/rust-gtk4/p9/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将学习如何将对应用的设置持久化&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-iced-p3~&gt; 布局</title>
+        <published>2023-01-14T23:29:30+00:00</published>
+        <updated>2023-01-14T23:29:30+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust/gui/iced/p3-bu-ju/"/>
+        <id>https://jedsek.xyz/posts/rust/gui/iced/p3-bu-ju/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;让我们来了解如何在 iced 中对部件进行布局&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gtk4-p8~&gt; 主事件循环</title>
+        <published>2023-01-13T00:00:00+00:00</published>
+        <updated>2023-01-13T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-gtk4/p8/"/>
+        <id>https://jedsek.xyz/posts/rust-gtk4/p8/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将学习 主事件循环(Main-Event-Loop) 相关的概念&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-iced-p2~&gt; Elm式架构</title>
+        <published>2023-01-12T23:29:30+00:00</published>
+        <updated>2023-01-12T23:29:30+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust/gui/iced/p2-elmshi-jia-gou/"/>
+        <id>https://jedsek.xyz/posts/rust/gui/iced/p2-elmshi-jia-gou/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将学习 Elm 式的架构体系&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-iced-p1~&gt; 系列说明</title>
+        <published>2023-01-10T23:19:32+00:00</published>
+        <updated>2023-01-10T23:19:32+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust/gui/iced/p1-xi-lie-shuo-ming/"/>
+        <id>https://jedsek.xyz/posts/rust/gui/iced/p1-xi-lie-shuo-ming/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;欢迎大家来到 Rust 的 iced 系列&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-tui</title>
+        <published>2023-01-01T00:00:00+00:00</published>
+        <updated>2023-01-01T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/rust-tui/"/>
+        <id>https://jedsek.xyz/categories/rust-tui/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/rust-tui/">&lt;p&gt;本系列, 我们将会了解如何使用 ratatui-rs(rust里大名鼎鼎的tui库) 来编写一个 tui 程序&lt;br &#x2F;&gt;
+比如你听说过的 vim, ranger, gitui, bottom 等非常有用的终端工具, 都属于 tui 的范畴&lt;&#x2F;p&gt;
+&lt;p&gt;p2 涉及了 ratatui 中模板项目的架构&lt;br &#x2F;&gt;
+p3 则讲解了一些常见的概念, 比如 tui 中管道&#x2F;重定向的作用与注意点&lt;&#x2F;p&gt;
+&lt;p&gt;之后会多来点实战的小项目的, 不过我真的挺懒的&lt;br &#x2F;&gt;
+嘿嘿, 你想啊, 5 个月后更一章(p3), 那章还是某天突然想写了, 然后一天内写完的, 爷真随性 (x&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-tui&#x2F;p1&quot;&gt;p1~&amp;gt; 系列说明&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-tui&#x2F;p2&quot;&gt;p2~&amp;gt; 基础架构&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-tui&#x2F;p3&quot;&gt;p3~&amp;gt; 终端中的各种概念&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>光栅化-对直线的dda与bresenham算法</title>
+        <published>2022-12-26T00:00:00+00:00</published>
+        <updated>2022-12-26T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/other/rasterization-dda-bresenham/"/>
+        <id>https://jedsek.xyz/posts/other/rasterization-dda-bresenham/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;关于 光栅化(rasterrization) 中的 DDA 与 Bresenham 两种算法&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>scala3-basic</title>
+        <published>2022-12-17T00:00:00+00:00</published>
+        <updated>2022-12-17T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/scala3-basic/"/>
+        <id>https://jedsek.xyz/categories/scala3-basic/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/scala3-basic/">&lt;p&gt;一些关于 scala3 的学习教程, 包括了环境搭建, 基础的函数式编程概念与 scala3 语法&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;scala3-basic&#x2F;p1&quot;&gt;p1~&amp;gt; 系列说明&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;scala3-basic&#x2F;p2&quot;&gt;p2~&amp;gt; 环境搭建&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>scala3-basic-p1~&gt; 系列说明</title>
+        <published>2022-12-17T00:00:00+00:00</published>
+        <updated>2022-12-17T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/scala3-basic/p1/"/>
+        <id>https://jedsek.xyz/posts/scala3-basic/p1/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;欢迎大家来到 scala3 的学习系列&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>scala-basic-p2~&gt; 环境搭建</title>
+        <published>2022-12-17T00:00:00+00:00</published>
+        <updated>2022-12-17T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/scala3-basic/p2/"/>
+        <id>https://jedsek.xyz/posts/scala3-basic/p2/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将介绍如何搭建 scala3 的环境&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>desktop-beautify</title>
+        <published>2022-12-10T00:00:00+00:00</published>
+        <updated>2022-12-10T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/desktop-beautify/"/>
+        <id>https://jedsek.xyz/categories/desktop-beautify/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/desktop-beautify/">&lt;p&gt;下面是一些桌面美化的文章, GNOME 与 Hyprland 分别代表了 &quot;简洁稳定&quot; 与 &quot;炫酷自由&quot; 两种不同的理念&lt;br &#x2F;&gt;
+当然, 这不是说 GNOME 不能炫酷, 也不是说 Hyprland 不能简洁, 想配置当然还是可以配置的&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;desktop-beautify&#x2F;gnome&quot;&gt;GNOME 入坑指南&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;desktop-beautify&#x2F;hyprland&quot;&gt;Hyprland 平铺式&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>hyprland 平铺式</title>
+        <published>2022-12-10T00:00:00+00:00</published>
+        <updated>2022-12-10T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/desktop-beautify/hyprland/"/>
+        <id>https://jedsek.xyz/posts/desktop-beautify/hyprland/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;linux&#x2F;wayland 下的炫酷窗管&#x2F;混合器: hyprland, 拥有丰富的特性集, 适合追求高度自由与极致性能的用户&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gtk4-p6~&gt; GObject-属性</title>
+        <published>2022-12-10T00:00:00+00:00</published>
+        <updated>2022-12-10T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-gtk4/p6/"/>
+        <id>https://jedsek.xyz/posts/rust-gtk4/p6/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将学习 GObject 的 property(属性), 探索其强大且灵活的运行时&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gtk4-p7~&gt; GObject-信号</title>
+        <published>2022-12-10T00:00:00+00:00</published>
+        <updated>2022-12-10T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-gtk4/p7/"/>
+        <id>https://jedsek.xyz/posts/rust-gtk4/p7/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将学习 GObject 的 signal(信号)&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>high-school-it-p5~&gt; 进制的转换与应用</title>
+        <published>2022-11-23T00:00:00+00:00</published>
+        <updated>2022-11-23T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/high-school-it/p5/"/>
+        <id>https://jedsek.xyz/posts/high-school-it/p5/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;关于任意进制间的互相转换与应用&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gtk4-p5~&gt; GObject-通用类型</title>
+        <published>2022-11-20T00:00:00+00:00</published>
+        <updated>2022-11-20T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-gtk4/p5/"/>
+        <id>https://jedsek.xyz/posts/rust-gtk4/p5/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将学习 GObject 的 generic-values(通用值), 了解 glib 的通用体系, 与序列化的代码&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>high-school-it-p4~&gt; python基础语法-part2</title>
+        <published>2022-11-10T00:00:00+00:00</published>
+        <updated>2022-11-10T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/high-school-it/p4/"/>
+        <id>https://jedsek.xyz/posts/high-school-it/p4/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/posts/high-school-it/p4/"></content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gstreamer-p5~&gt; 与GUI集成</title>
+        <published>2022-10-22T22:44:16+00:00</published>
+        <updated>2022-10-22T22:44:16+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust/gstreamer/p5-yu-guiji-cheng/"/>
+        <id>https://jedsek.xyz/posts/rust/gstreamer/p5-yu-guiji-cheng/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;通过将 GUI 与 gstreamer 集成, 来制作一个简易的音乐播放器&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gstreamer-p4~&gt; 时间管理</title>
+        <published>2022-10-22T22:44:02+00:00</published>
+        <updated>2022-10-22T22:44:02+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust/gstreamer/p4-shi-jian-guan-li/"/>
+        <id>https://jedsek.xyz/posts/rust/gstreamer/p4-shi-jian-guan-li/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;学习 gstreamer 中的时间管理, 执行快进&#x2F;后退等操作&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gstreamer-p3~&gt; 管道的动态构建</title>
+        <published>2022-10-22T22:43:55+00:00</published>
+        <updated>2022-10-22T22:43:55+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust/gstreamer/p3-guan-dao-de-dong-tai-gou-jian/"/>
+        <id>https://jedsek.xyz/posts/rust/gstreamer/p3-guan-dao-de-dong-tai-gou-jian/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;学习如何在 gstreamer 中动态地构建管道&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gstreamer-p2~&gt; 管道的基础概念</title>
+        <published>2022-10-22T22:43:36+00:00</published>
+        <updated>2022-10-22T22:43:36+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust/gstreamer/p2-guan-dao-de-ji-chu-gai-nian/"/>
+        <id>https://jedsek.xyz/posts/rust/gstreamer/p2-guan-dao-de-ji-chu-gai-nian/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;通过一个入门级例子, 讲述 gstreamer 中管道的基础概念&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gstreamer-p1~&gt; 系列说明</title>
+        <published>2022-10-22T22:42:00+00:00</published>
+        <updated>2022-10-22T22:42:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust/gstreamer/p1-xi-lie-shuo-ming/"/>
+        <id>https://jedsek.xyz/posts/rust/gstreamer/p1-xi-lie-shuo-ming/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;欢迎大家来到 gstreamer 的系列, 学习如何处理音视频&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gstreamer</title>
+        <published>2022-10-22T00:00:00+00:00</published>
+        <updated>2022-10-22T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/rust-gstreamer/"/>
+        <id>https://jedsek.xyz/categories/rust-gstreamer/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/rust-gstreamer/">&lt;p&gt;这是 gstreamer 的基础教程, 不过代码不是冗杂的 C, 而是我喜欢的 Rust&lt;br &#x2F;&gt;
+可以看作是官网教程的翻译, 但把 C 语言换成 Rust, 而且会尽量增加解释, 让教程变得更加简单易懂&lt;&#x2F;p&gt;
+&lt;p&gt;值得注意的是, 这些一个都还没开始写 (悲&lt;br &#x2F;&gt;
+下面的目录, 作用是提醒自己不要忘记, 仅此而已, 有空再写, 愉快鸽鸽鸽啦! :)&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gstreamer&#x2F;p1&quot;&gt;p1~&amp;gt; 系列说明&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gstreamer&#x2F;p2&quot;&gt;p2~&amp;gt; 管道的基础概念&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gstreamer&#x2F;p3&quot;&gt;p3~&amp;gt; 管道的动态构建&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gstreamer&#x2F;p4&quot;&gt;p4~&amp;gt; 时间管理&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gstreamer&#x2F;p5&quot;&gt;p5~&amp;gt; 与GUI集成&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gtk4-p4~&gt; GObject-子类化</title>
+        <published>2022-10-09T00:00:00+00:00</published>
+        <updated>2022-10-09T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-gtk4/p4/"/>
+        <id>https://jedsek.xyz/posts/rust-gtk4/p4/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将学习如何使用子类化(Subclassing), 从而定制自己的 Widget&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>高中信息技术教程</title>
+        <published>2022-09-14T00:00:00+00:00</published>
+        <updated>2022-09-14T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/high-school-it/"/>
+        <id>https://jedsek.xyz/categories/high-school-it/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/high-school-it/">&lt;p&gt;高中信息技术学科的知识点, 有兴趣者自看, 有空的话会增加一些习题&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;gao-yi&quot;&gt;高一&lt;&#x2F;h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;high-school-it&#x2F;p1&quot;&gt;p1~&amp;gt; 数据与信息&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;high-school-it&#x2F;p2&quot;&gt;p2~&amp;gt; 基础科普&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;high-school-it&#x2F;p3&quot;&gt;p3~&amp;gt; python基础语法-part1&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;high-school-it&#x2F;p4&quot;&gt;p4~&amp;gt; python基础语法-part2&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;high-school-it&#x2F;p5&quot;&gt;p5~&amp;gt; 进制的转换与应用&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>high-school-it-p3~&gt; python基础语法-part1</title>
+        <published>2022-09-12T00:00:00+00:00</published>
+        <updated>2022-09-12T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/high-school-it/p3/"/>
+        <id>https://jedsek.xyz/posts/high-school-it/p3/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;正式的对python语法的学习, 包含常见库函数的使用&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>high-school-it-p2~&gt; 基础科普</title>
+        <published>2022-09-11T00:00:00+00:00</published>
+        <updated>2022-09-11T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/high-school-it/p2/"/>
+        <id>https://jedsek.xyz/posts/high-school-it/p2/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;让我们了解下python, 顺便科普一些常识, 进行环境搭建, 写一个Hello World吧!&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>high-school-it-p1~&gt; 数据与信息</title>
+        <published>2022-09-10T00:00:00+00:00</published>
+        <updated>2022-09-10T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/high-school-it/p1/"/>
+        <id>https://jedsek.xyz/posts/high-school-it/p1/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本章是一些小小的概念, 涉及了数据与信息的定义, 及之间的关系与区别&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>clap-rs 简介</title>
+        <published>2022-08-16T00:00:00+00:00</published>
+        <updated>2022-08-16T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-clap/intro/"/>
+        <id>https://jedsek.xyz/posts/rust-clap/intro/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;了解命令行, 然后用 clap-rs 写个类似 GNU&#x2F;wc 命令的 rwc 吧, 增加了进度条, 表格输出, 并行化等功能&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>GNOME 入坑指南</title>
+        <published>2022-07-20T00:00:00+00:00</published>
+        <updated>2022-07-20T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/desktop-beautify/gnome/"/>
+        <id>https://jedsek.xyz/posts/desktop-beautify/gnome/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;关于 GNOME 的入坑指南, 让你了解, 配置, 美化桌面环境&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>haskell-basic-p5~&gt; 类型与类型类</title>
+        <published>2022-07-18T00:00:00+00:00</published>
+        <updated>2022-07-18T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/haskell-basic/p5/"/>
+        <id>https://jedsek.xyz/posts/haskell-basic/p5/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;关于 Haskell 中的类型(Type), 与类型类(Typeclass)&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>haskell-basic-p4~&gt; 基础语法</title>
+        <published>2022-07-12T00:00:00+00:00</published>
+        <updated>2022-07-12T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/haskell-basic/p4/"/>
+        <id>https://jedsek.xyz/posts/haskell-basic/p4/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;关于 Haskell 的数字, Bool, List, if语句&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>haskell-basic-p3~&gt; 函数式介绍</title>
+        <published>2022-06-26T00:00:00+00:00</published>
+        <updated>2022-06-26T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/haskell-basic/p3/"/>
+        <id>https://jedsek.xyz/posts/haskell-basic/p3/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;何为函数式编程(FP, 即Functional Programming) ?&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>haskell-basic</title>
+        <published>2022-06-25T00:00:00+00:00</published>
+        <updated>2022-06-25T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/haskell-basic/"/>
+        <id>https://jedsek.xyz/categories/haskell-basic/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/haskell-basic/">&lt;p&gt;一些关于 haskell 的学习教程, 包括了环境搭建, 基础的函数式编程概念与 haskell 语法&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;haskell-basic&#x2F;p1&quot;&gt;p1~&amp;gt; 系列说明&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;haskell-basic&#x2F;p2&quot;&gt;p2~&amp;gt; 环境搭建&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;haskell-basic&#x2F;p3&quot;&gt;p3~&amp;gt; 函数式介绍&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;haskell-basic&#x2F;p4&quot;&gt;p4~&amp;gt; 基础语法&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;haskell-basic&#x2F;p5&quot;&gt;p5~&amp;gt; 类型与类型类&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>haskell-basic-p1~&gt; 系列说明</title>
+        <published>2022-06-25T00:00:00+00:00</published>
+        <updated>2022-06-25T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/haskell-basic/p1/"/>
+        <id>https://jedsek.xyz/posts/haskell-basic/p1/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;欢迎大家来到 Haskell 的学习系列&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>haskell-basic-p2~&gt; 环境搭建</title>
+        <published>2022-06-25T00:00:00+00:00</published>
+        <updated>2022-06-25T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/haskell-basic/p2/"/>
+        <id>https://jedsek.xyz/posts/haskell-basic/p2/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将介绍如何搭建 Haskell 的环境&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-tui-p1~&gt; 系列说明</title>
+        <published>2022-06-19T00:00:00+00:00</published>
+        <updated>2022-06-19T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-tui/p1/"/>
+        <id>https://jedsek.xyz/posts/rust-tui/p1/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;欢迎大家来到 Rust 的 TUI 系列&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gtk4-p3~&gt; GObject-内存管理</title>
+        <published>2022-03-30T00:00:00+00:00</published>
+        <updated>2022-03-30T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-gtk4/p3/"/>
+        <id>https://jedsek.xyz/posts/rust-gtk4/p3/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;来看看什么是 Widget, 由此出发, 创建一个双按钮加减数字的经典程序, 探讨内存管理, 防止内存泄漏&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-async</title>
+        <published>2021-12-04T00:00:00+00:00</published>
+        <updated>2021-12-04T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/rust-async/"/>
+        <id>https://jedsek.xyz/categories/rust-async/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/rust-async/">&lt;p&gt;这里是有关 Rust 中异步知识的文章&lt;br &#x2F;&gt;
+&lt;del&gt;其实已经鸽了好久了 (bushi)&lt;&#x2F;del&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-async&#x2F;p1&quot;&gt;p1~&amp;gt; 系列说明&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-async&#x2F;p2&quot;&gt;p2~&amp;gt; 异步简介&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-async&#x2F;p3&quot;&gt;p3~&amp;gt; Future&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-async&#x2F;p4&quot;&gt;p4~&amp;gt; 状态的保存与变换&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-decl-macro</title>
+        <published>2021-12-04T00:00:00+00:00</published>
+        <updated>2021-12-04T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/rust-decl-macro/"/>
+        <id>https://jedsek.xyz/categories/rust-decl-macro/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/rust-decl-macro/">&lt;p&gt;呜呜呜呜呜呜呜呜呜呜呜呜...
+我B站的视频早早早就已经更完了, 但博客却一直没有补完, 由于懒散与学业...&lt;&#x2F;p&gt;
+&lt;p&gt;您可以去看我在B站的相关视频: &lt;a href=&quot;https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV1Wv411W7FH&#x2F;&quot;&gt;传送门&lt;&#x2F;a&gt;&lt;br &#x2F;&gt;
+我迟早有一天会更完的 :)&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-decl-macro&#x2F;p1&quot;&gt;p1~&amp;gt; 系列说明&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-decl-macro&#x2F;p2&quot;&gt;p2~&amp;gt; 从println!开始&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-decl-macro&#x2F;p3&quot;&gt;p3~&amp;gt; 声明与使用&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-decl-macro&#x2F;p4&quot;&gt;p4~&amp;gt; 重复&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-decl-macro&#x2F;p5&quot;&gt;p5~&amp;gt; 卫生性&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-decl-macro&#x2F;p6&quot;&gt;p6~&amp;gt; 实战: 递推序列生成器&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-decl-macro&#x2F;p7&quot;&gt;p7~&amp;gt; 作用域的导入与导出&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-decl-macro&#x2F;p8&quot;&gt;p8~&amp;gt; 模式: TT-Muncher&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-decl-macro&#x2F;p9&quot;&gt;p9~&amp;gt; 模式: 内用规则与尾部分隔符&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gui</title>
+        <published>2021-12-04T00:00:00+00:00</published>
+        <updated>2021-12-04T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/categories/rust-gui/"/>
+        <id>https://jedsek.xyz/categories/rust-gui/</id>
+        
+        <content type="html" xml:base="https://jedsek.xyz/categories/rust-gui/">&lt;p&gt;这里是关于用 rust 写 GUI 程序的索引&lt;br &#x2F;&gt;
+以下仅代表一些我个人比较喜欢的gui框架, 不要问我为什么没有 &lt;code&gt;xxx&lt;&#x2F;code&gt;&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;gtk4-relm4&quot;&gt;gtk4&#x2F;relm4&lt;&#x2F;h1&gt;
+&lt;ul&gt;
+&lt;li&gt;gtk4:&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;gtk4 是 linux 上的首选之一, 稳健与强大不言而喻, 且近年开始发力, 做到了基本现代化&lt;br &#x2F;&gt;
+直接用 c 写确实繁琐, 但其具有 &lt;code&gt;gobject-introspection&lt;&#x2F;code&gt; 的重要特性, 因此各种语言都能拥有相应绑定&lt;br &#x2F;&gt;
+得益于这些语言的高级特性, 加上 &lt;a href=&quot;https:&#x2F;&#x2F;jwestman.pages.gitlab.gnome.org&#x2F;blueprint-compiler&#x2F;&quot;&gt;blueprint&lt;&#x2F;a&gt; 这种专门为其打造的现代 ui 声明式描述文件(取代 xml), 表达力并不算差&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gtk4&#x2F;p1&quot;&gt;p1~&amp;gt; 系列说明&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gtk4&#x2F;p2&quot;&gt;p2~&amp;gt; 创建窗口&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gtk4&#x2F;p3&quot;&gt;p3~&amp;gt; GObject-内存管理&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gtk4&#x2F;p4&quot;&gt;p4~&amp;gt; GObject-子类化&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gtk4&#x2F;p5&quot;&gt;p5~&amp;gt; GObject-通用类型&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gtk4&#x2F;p6&quot;&gt;p6~&amp;gt; GObject-属性&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot; checked=&quot;&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gtk4&#x2F;p7&quot;&gt;p7~&amp;gt; GObject-信号&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gtk4&#x2F;p8&quot;&gt;p8~&amp;gt; 主事件循环&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-gtk4&#x2F;p9&quot;&gt;p9~&amp;gt; 设置持久化&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;relm4:&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;基于 gtk4, 加上了 elm 语言的模型, 可以看作是 gtk-rs 的语法糖版本, 甜了一个数量级&lt;&#x2F;p&gt;
+&lt;hr &#x2F;&gt;
+&lt;h1 id=&quot;iced&quot;&gt;iced&lt;&#x2F;h1&gt;
+&lt;p&gt;iced 使用 Elm 语言的模型, 是原生 rust 编写的 gui 库, 非常有趣, 简单易学, 强烈推荐 (虽然生态还没起来)&lt;br &#x2F;&gt;
+其已被 pop-os 用于编写 cosmic-de, 对标 gnome, 证明了其编写大型工程的能力, 最关键的是: 那些工程师们的审美是一直在线的&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-iced&#x2F;p1&quot;&gt;p1~&amp;gt; 系列说明&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-iced&#x2F;p2&quot;&gt;p2~&amp;gt; Elm式架构&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-iced&#x2F;p3&quot;&gt;p3~&amp;gt; 布局&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&#x2F;&gt;
+&lt;a href=&quot;&#x2F;posts&#x2F;rust-iced&#x2F;p4&quot;&gt;p4~&amp;gt; 样式&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;hr &#x2F;&gt;
+&lt;h1 id=&quot;egui&quot;&gt;egui&lt;&#x2F;h1&gt;
+&lt;p&gt;在 rust 目前原生的 gui 库中, 比较简单易学, 且生态相对较为丰富, 对 web 端支持较为完善&lt;br &#x2F;&gt;
+但由于即时渲染模式的固有问题, 在界面布局等存在问题, 且需要人为地将每次 update 时的渲染开销进行控制与优化&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gtk4-p2~&gt; 创建窗口</title>
+        <published>2021-11-07T00:00:00+00:00</published>
+        <updated>2021-11-07T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-gtk4/p2/"/>
+        <id>https://jedsek.xyz/posts/rust-gtk4/p2/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;让我们使用 Gtk 创建窗口, 了解下 app_id, 构造者模式, 信号量, handler 等概念吧&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-gtk4-p1~&gt; 系列说明</title>
+        <published>2021-10-23T00:00:00+00:00</published>
+        <updated>2021-10-23T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-gtk4/p1/"/>
+        <id>https://jedsek.xyz/posts/rust-gtk4/p1/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;欢迎大家来到 Rust 的 gkt-rs 系列&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-decl-macro-p5~&gt; 卫生性</title>
+        <published>2021-10-16T00:00:00+00:00</published>
+        <updated>2021-10-16T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-decl-macro/p5/"/>
+        <id>https://jedsek.xyz/posts/rust-decl-macro/p5/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本节将介绍宏的 卫生性(hygienic)&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-decl-macro-p4~&gt; 重复</title>
+        <published>2021-10-09T00:00:00+00:00</published>
+        <updated>2021-10-09T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-decl-macro/p4/"/>
+        <id>https://jedsek.xyz/posts/rust-decl-macro/p4/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;宏中非常重要的语法: 重复(repetition)&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-decl-macro-p3~&gt; 声明与使用</title>
+        <published>2021-09-20T00:00:00+00:00</published>
+        <updated>2021-09-20T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-decl-macro/p3/"/>
+        <id>https://jedsek.xyz/posts/rust-decl-macro/p3/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;关于 macro 的 正式说明&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-decl-macro-p1~&gt; 系列说明</title>
+        <published>2021-09-19T00:00:00+00:00</published>
+        <updated>2021-09-19T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-decl-macro/p1/"/>
+        <id>https://jedsek.xyz/posts/rust-decl-macro/p1/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;欢迎大家来到 Rust 的 声明宏(declarative-macro) 系列&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-decl-macro-p2~&gt; 从println开始</title>
+        <published>2021-09-19T00:00:00+00:00</published>
+        <updated>2021-09-19T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-decl-macro/p2/"/>
+        <id>https://jedsek.xyz/posts/rust-decl-macro/p2/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;我们从熟悉的 println! 开始, 了解下声明宏的大致结构吧&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-async-p1~&gt; 系列说明</title>
+        <published>2021-09-12T00:00:00+00:00</published>
+        <updated>2021-09-12T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-async/p1/"/>
+        <id>https://jedsek.xyz/posts/rust-async/p1/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;欢迎大家来到 Rust 的 异步(async) 系列&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-async-p2~&gt; 异步简介</title>
+        <published>2021-09-12T00:00:00+00:00</published>
+        <updated>2021-09-12T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-async/p2/"/>
+        <id>https://jedsek.xyz/posts/rust-async/p2/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;来简单介绍一下异步吧&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-async-p3~&gt; Future</title>
+        <published>2021-09-12T00:00:00+00:00</published>
+        <updated>2021-09-12T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-async/p3/"/>
+        <id>https://jedsek.xyz/posts/rust-async/p3/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;Rust 中的 Future&#x2F;async&#x2F;.await 说明&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>rust-async-p4~&gt; 状态的保存与变换</title>
+        <published>2021-09-12T00:00:00+00:00</published>
+        <updated>2021-09-12T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://jedsek.xyz/posts/rust-async/p4/"/>
+        <id>https://jedsek.xyz/posts/rust-async/p4/</id>
+        
+        <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;浅显的原理第一篇: 状态的保存&#x2F;变换&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</summary>
+        
+    </entry>
+</feed>
