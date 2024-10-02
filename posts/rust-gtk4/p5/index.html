@@ -1,0 +1,81 @@
+<!doctype html><html class=scroll-smooth lang=zh-Hans><head><meta charset=utf-8><link crossorigin href=/manifest.json rel=manifest><script src=/scripts/custom/loadscript.js></script><link href=/styles/third_party/highlight.min.css rel=stylesheet><link href=/styles/third_party/highlight_themes/atom-one-dark.css rel=stylesheet><script src=/scripts/third_party/pjax.min.js></script><script src=/scripts/third_party/quicklink.umd.min.js></script><script src=/scripts/third_party/jquery.min.js></script><script src=/scripts/third_party/highlight/highlight.min.js></script><script src=/scripts/third_party/highlight/languages/rust.min.js></script><script src=/scripts/third_party/highlight/languages/nix.min.js></script><script src=/scripts/third_party/highlight/languages/haskell.min.js></script><script src=/scripts/third_party/highlight/languages/gleam.min.js></script><script src=/scripts/third_party/highlight/languages/scheme.min.js></script><link href=/iconfonts/iconfont.css rel=stylesheet><link href=/styles/custom/tailwind.css rel=stylesheet><link href=/styles/custom/style.css rel=stylesheet><script src=/scripts/custom/pjax.js></script><script src=/scripts/custom/pwa_install.js></script><script>document.documentElement.setAttribute(`data-theme`,`dark`)</script><script>if(navigator.serviceWorker!=null){navigator.serviceWorker.register(`/sw.js`).then((a=>{console.log(`Registered events at scope: `,a.scope)}))}</script><script>var GetCookie=(a=>{let e=0;var b=document.cookie.split(`;`);for(var c=e;c<b.length;c++){var d=b[c].split(`=`);if(a==d[e]){return unescape(d[1])}};return null});var SetCookie=((a,b)=>{document.cookie=a+ `=`+ escape(b)+ `; SameSite=None; Secure;`});var scrollback=(()=>{let a=`scroll`;if(GetCookie(a)!=null){const b=GetCookie(a);document.documentElement.scrollTo({top:b,left:0,behavior:`instant`})}})</script><script>window.addEventListener(`load`,()=>{quicklink.listen()})</script><script>loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}));document.addEventListener(`pjax:complete`,(()=>{loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}))}))</script><title> Jedsek | Blog </title><body onscroll='SetCookie("scroll",document.documentElement.scrollTop);' class=flex id=body onload=scrollback();><script src=/scripts/custom/fireworks.js></script><div class="flex flex-rol grow"><div class="content w-80 flex flex-col break-words pr-2 border-2 grow border-b-0 border-neutral-800 animate-in fade-in slide-in-from-top-8 duration-1000" style=background-color:#3b3b3b><div class=break-words style=min-height:100vh><div class="p-4 flex justify-center text-4xl" style=opacity:.84>rust-gtk4-p5~> GObject-通用类型</div><div class="p-4 flex align-center text-sm hover:scale-125 duration-300 w-fit" style=color:#999;margin-top:-16px;margin-left:auto;margin-right:auto><~~ 发表日期:2022-11-20 | 访问量: <span class=text-sm id=busuanzi_container_page_pv style=color:#999> <span class=text-sm id=busuanzi_value_page_pv style=color:#999></span></span> | 本文词数:899 | 预计阅读时间:5分钟 ~~></div><div class=p-4><blockquote><p>本节将学习 GObject 的 generic-values(通用值), 了解 glib 的通用体系, 与序列化的代码</blockquote><span id=continue-reading></span><p>同系列传送门: <a href=/categories/rust-gui>rust-gui</a><br> GNOME入坑指南: <a href=/posts/desktop-beautify/gnome>gnome</a><h1 id=shuo-ming>说明</h1><p>之前说过, gnome体系依赖于 glib, 以C语言为核心的实现, 通过 Gobject-Introspection 为大量语言提供绑定<br> 这是一套以C为核心, 支持多语言互相交互的运行时系统, 自然要有套完整且够通用的数据类型<p>在为Rust提供的绑定中, 有两套这样的数据类型, 分别是:<ul><li><code>glib::Value</code>: 作用于 rust 与 glib 之间数据类型的互相转换<li><code>glib::Variant</code>: 作用于数据类型的序列化/反序列化, 以使应用与外部世界(比如某个进程)交互, 或存储数据到本地磁盘</ul><p>之后学习属性与信号时, 我们将会用到 <code>glib::Value</code>, 即 <code>GValue</code>, 让 rust 中的数据类型 能与 glib 的库函数互相交互<br> 之后学习偏好持久化/设置保存时, 我们将会用到 <code>glib::Variant</code>, 即 <code>GVariant</code>, 进行数据的序列化与反序列化<p>搞清楚以上的说明之后, 接下来的难度便是一马平川, 只需稍微看几眼有个印象, 到时候多查查文档就 ok 了<br> 接下来的代码直接抄官方书籍了, 不过加了大量解释, 希望有助于你理解它们<hr><h1 id=value>Value</h1><p>你可以简单地将 <code>glib::Value</code> 理解为一个 Wrapper 类型, 如果用 rust 中的 enum 来表示, 它可以是这样的:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>enum Value&LTT> {
+    bool(bool),
+    i8(i8),
+    i32(i32),
+    u32(u32),
+    i64(i64),
+    u64(u64),
+    f32(f32),
+    f64(f64),
+    // boxed-types
+    String(Option&LTString>),
+    Object(Option&LTdyn IsA&LTglib::Object>>),
+}
+</code></pre><p>你会观察到 <code>boxed-types(装箱类型)</code> 这几个字, 它包装一个 rust 中的 <code>Option&LTT></code> 类型<br> 即, boxed-types, 可接受包装 <code>Option&LTT>::None</code>, 以此来表示可空这个概念<p>此时, 装箱所得的结果, 是个代表着C语言中 <code>null</code> 概念的东西, 而其他的如数字/布尔类型的 GValue, 则不允许包装 <code>None</code><p>听着云里雾里的? 那就直接看代码吧, 下面是一些例子, 或许能帮助你更好地理解:<figcaption>Example: non-boxed-types</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use gtk::prelude::*;
+fn main() {
+    // Store `i32` as `Value`
+    let integer_value = 10.to_value();
+
+    // Retrieve `i32` from `Value`
+    let integer = integer_value
+        .get::&LTi32>()
+        .expect("The value needs to be of type `i32`.");
+
+    // Check if the retrieved value is correct
+    assert_eq!(integer, 10);
+}
+</code></pre><figcaption>Example: boxed-types</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use gtk::prelude::*;
+fn main() {
+    // Store `Option&LTString>` as `Value`
+    let string_some_value = "Hello!".to_value();
+    let string_none_value = None::&LTString>.to_value();
+
+    // Retrieve `String` from `Value`
+    let string_some = string_some_value
+        .get::&LTOption&LTString>>()
+        .expect("The value needs to be of type `Option&LTString>`.");
+    let string_none = string_none_value
+        .get::&LTOption&LTString>>()
+        .expect("The value needs to be of type `Option&LTString>`.");
+
+    // Check if the retrieved value is correct
+    assert_eq!(string_some, Some("Hello!".to_string()));
+    assert_eq!(string_none, None);
+}
+</code></pre><p>当你希望区分可以表示空的Value, 只需将 <code>get::&LTString></code> 换成 <code>get::&LTOption&LTString>></code> 即可, 函数会自动帮你进行转换<figcaption>直接使用 `get::&LTstring>` 而不是 `get::&LToption&LTstring>>`</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use gtk::prelude::*
+fn main() {
+    // Store string as `Value`
+    let string_value = "Hello!".to_value();
+
+    // Retrieve `String` from `Value`
+    let string = string_value
+        .get::&LTString>()
+        .expect("The value needs to be of type `String`.");
+
+    // Check if the retrieved value is correct
+    assert_eq!(string, "Hello!".to_string());
+}
+</code></pre><p>我们将在之后学习 信号(signal) 与 属性(property) 时, 使用到 <code>glib::Value</code><hr><h1 id=variant>Variant</h1><p>数据要发送到某个进程或网络, 或想将数据存储在磁盘上时, 就可以使用 <code>glib::Variant</code><br> 你可以将 <code>glib::Variant</code> 想象为 json 文本, 那是一种非常通用的文件格式<p>根据文档所述:<br> glib 中的 Variant, 被设计为与 dbus 体系有着基本相同的格式, 能够方便与 dbus 集成<br> Variant 在处理序列化形式的数据方面进行了大量优化, 可在很短的常量时间内, 执行几乎所有的反序列化操作，且占用非常小的内存<br> 序列化的 Variant 数据也可以通过网络发送<p>因此你希望更深入学习, 可以查找 dbus 的相关资料, 这不在接下来的文章范围内<p>与使用 <code>glib::Value</code> 的经验非常相似, 我们只需要将 <code>to_value()</code> 替换为 <code>to_variant()</code>:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use gtk::prelude::*;
+fn main() {
+    // Store `i32` as `Variant`
+    let integer_variant = 10.to_variant();
+
+    // Retrieve `i32` from `Variant`
+    let integer = integer_variant
+        .get::&LTi32>()
+        .expect("The variant needs to be of type `i32`.");
+
+    // Check if the retrieved value is correct
+    assert_eq!(integer, 10);
+}
+</code></pre><p>更多例子, 以下代码将实现 <code>Vec&LTT></code> 与 <code>glib::Variant</code> 间的互相转化:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use gtk::prelude::*;
+fn main() {
+    let variant = vec!["Hello", "there!"].to_variant();
+    assert_eq!(variant.n_children(), 2);
+
+    let vec = &variant
+        .get::&LTVec&LTString>>()
+        .expect("The variant needs to be of type `String`.");
+    assert_eq!(vec[0], "Hello");
+}
+</code></pre><p>我们将在使用 <code>gio::Settings</code> 保存设置, 或使用 <code>gio::Action</code> 激活操作时，用到 <code>glib::Variant</code><hr><p>上一篇: <a href=/posts/rust-gtk4/p4>p4~> GObject-子类化</a><br> 下一篇: <a href=/posts/rust-gtk4/p6>p6~> GObject-属性</a></div></div><div class=bottom-footer style=height:140vh><div class="flex flex-col text-center border-t-2 py-8" style=background-color:#3b3b3b><span> <i class="iconfont icon-aixin text-red-500 align-middle"> </i> <span class=opacity-70> Jedsek </span> </span></div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><div class=pl-4><span> 哈喽, 哈喽!!!! 这里应该算是一个几乎不算彩蛋的小彩蛋吧? 只有当你浏览具有 目录|TOC 的文章时, 此段才会渲染<br> 其实这里是特意留白出来的底部 footer, 保证了当你点击右侧的 目录|TOC 且是最后一个 anchor 时, 一定能高亮它 <br> <br> 你可以想象一下, 如果没有这段 footer, 那么点击锚点时, 当最后一段目录的内容只有几行字时 <br> 由于底部行数过少, 就只能高亮到上面的锚点啦! <br> <br> 毕竟我高亮目录的实现思路, 是获取当前滚动的Y偏移量, 与锚点对应的 h1/h2 在博客左侧主体的Y偏移量, 进行计算来判断高亮哪个~ <br> 简单来说, 当 (window.scrollY + 200) >= anchor.offsetTop 时, 就会选择这个anchor, 随后进行高亮 <br> <br> 你可以试试在浏览器中按 F12 打开开发者工具, ctrl-c 选择此处 class 名称为 "bottom-footer" 的 div, 然后删除该结点 <br> 然后按 F12 退出开发者工具, 随后点击右侧的 目录|TOC 中的结点, 当最后一个 anchor 的内容过少时, 锚点无法被高亮 <br> 当然, 当最后一个 anchor 的行数稍微多一些时, 照样能够高亮最后一个目录 <br> <br> 如果你发现有无法高亮的情况, 嗯......那应该不太可能呢, 诶嘿～ </span><br><br></div><br></div></div><div class="sidebar flex-col w-48" style=display:flex><script>var show_sidebar_at_startup=(()=>{const a=document.getElementsByClassName(`sidebar`)[0];if(/Mobi|Android|iPhone/i.test(navigator.userAgent)&&a.style.display==`flex`){a.style.display=`none`}});show_sidebar_at_startup()</script><div class="nav flex flex-col gap-2 pb-auto opacity-100 text-center p-2" style=background-color:#2e2e2e><a class="text-xl font-medium no-underline hover:scale-110 duration-300" href=/ style=background-color:#2e2e2e> Jedsek's blog </a><span class="text-sm italic" style=background-color:#2e2e2e> 与其浊富 | 宁比清贫 </span><a href=/about style=background-color:#2e2e2e> <img class="my-avatar p-2 duration-300 hover:scale-110 hover:rotate-12 hover:rounded-3xl hover:opacity-80" src=/images/avatar.webp style=background-color:#2e2e2e> </a><nav class="px-2 pt-1"><ul class="list-none pl-0" id=menu><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/> <i class="iconfont icon-home left"></i> <span class="iconfont mr-10">首页</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/about> <i class="iconfont icon-about left"></i> <span class="iconfont mr-10">关于</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/sayings> <i class="iconfont icon-yulu left"> </i> <span class="iconfont mr-10">语录</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/categories> <i class="iconfont icon-Z-fenleidaohang left"></i> <span class="iconfont mr-10">分类</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/novels> <i class="iconfont icon-config_s left"></i> <span class="iconfont mr-10">小说</span> </a></ul></nav></div><script></script><div class="sticky top-0"><aside class="toc flex flex-col border-t-2 px-2 py-1 my-2"><div class="text-center text-2xl">目录|TOC</div><ul class="list-none px-2 text-left"><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#shuo-ming>说明</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#value>Value</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#variant>Variant</a></ul></aside></div></div><div class="float-botton flex"><a class="float-botton-item no-underline" href=#> <i class="iconfont icon-arrowup"></i> </a><div class=float-bottton-seperator></div><div class="float-botton-item float-botton-toggle-sidebar" type=button><i class="iconfont icon-sidebar"></i></div></div></div><script src=/scripts/custom/ul.js></script><script src=/scripts/third_party/lightgallery.min.js></script><script src=/scripts/custom/fancybox.js></script><script src=/scripts/custom/codeblock.js></script><script src=/scripts/custom/sidebar.js></script><script src=/scripts/custom/toc.js></script><script>hljs.highlightAll();document.addEventListener(`pjax:complete`,()=>{hljs.highlightAll()})</script>

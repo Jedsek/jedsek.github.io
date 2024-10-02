@@ -1,0 +1,129 @@
+<!doctype html><html class=scroll-smooth lang=zh-Hans><head><meta charset=utf-8><link crossorigin href=/manifest.json rel=manifest><script src=/scripts/custom/loadscript.js></script><link href=/styles/third_party/highlight.min.css rel=stylesheet><link href=/styles/third_party/highlight_themes/atom-one-dark.css rel=stylesheet><script src=/scripts/third_party/pjax.min.js></script><script src=/scripts/third_party/quicklink.umd.min.js></script><script src=/scripts/third_party/jquery.min.js></script><script src=/scripts/third_party/highlight/highlight.min.js></script><script src=/scripts/third_party/highlight/languages/rust.min.js></script><script src=/scripts/third_party/highlight/languages/nix.min.js></script><script src=/scripts/third_party/highlight/languages/haskell.min.js></script><script src=/scripts/third_party/highlight/languages/gleam.min.js></script><script src=/scripts/third_party/highlight/languages/scheme.min.js></script><link href=/iconfonts/iconfont.css rel=stylesheet><link href=/styles/custom/tailwind.css rel=stylesheet><link href=/styles/custom/style.css rel=stylesheet><script src=/scripts/custom/pjax.js></script><script src=/scripts/custom/pwa_install.js></script><script>document.documentElement.setAttribute(`data-theme`,`dark`)</script><script>if(navigator.serviceWorker!=null){navigator.serviceWorker.register(`/sw.js`).then((a=>{console.log(`Registered events at scope: `,a.scope)}))}</script><script>var GetCookie=(a=>{let e=0;var b=document.cookie.split(`;`);for(var c=e;c<b.length;c++){var d=b[c].split(`=`);if(a==d[e]){return unescape(d[1])}};return null});var SetCookie=((a,b)=>{document.cookie=a+ `=`+ escape(b)+ `; SameSite=None; Secure;`});var scrollback=(()=>{let a=`scroll`;if(GetCookie(a)!=null){const b=GetCookie(a);document.documentElement.scrollTo({top:b,left:0,behavior:`instant`})}})</script><script>window.addEventListener(`load`,()=>{quicklink.listen()})</script><script>loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}));document.addEventListener(`pjax:complete`,(()=>{loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}))}))</script><title> Jedsek | Blog </title><body onscroll='SetCookie("scroll",document.documentElement.scrollTop);' class=flex id=body onload=scrollback();><script src=/scripts/custom/fireworks.js></script><div class="flex flex-rol grow"><div class="content w-80 flex flex-col break-words pr-2 border-2 grow border-b-0 border-neutral-800 animate-in fade-in slide-in-from-top-8 duration-1000" style=background-color:#3b3b3b><div class=break-words style=min-height:100vh><div class="p-4 flex justify-center text-4xl" style=opacity:.84>rust-gtk4-p4~> GObject-子类化</div><div class="p-4 flex align-center text-sm hover:scale-125 duration-300 w-fit" style=color:#999;margin-top:-16px;margin-left:auto;margin-right:auto><~~ 发表日期:2022-10-09 | 访问量: <span class=text-sm id=busuanzi_container_page_pv style=color:#999> <span class=text-sm id=busuanzi_value_page_pv style=color:#999></span></span> | 本文词数:1593 | 预计阅读时间:8分钟 ~~></div><div class=p-4><blockquote><p>本节将学习如何使用子类化(Subclassing), 从而定制自己的 Widget</blockquote><span id=continue-reading></span><p>同系列传送门: <a href=/categories/rust-gui>rust-gui</a><br> GNOME入坑指南: <a href=/posts/desktop-beautify/gnome>gnome</a><h1 id=mu-lu-jie-gou>目录结构</h1><p>gtk 基于 glib, 而 glib 最让人印象深刻的地方, 又是其 <code>Gobject System</code><br> 众所周知, C 是一套面向过程的语言, 但基于 C 的 glib库, 却通过高超的思想, 提供了面向对象的支持<p>在这样一个面向对象, 依赖继承的体系中, 我们可以通过子类化(Subclassing)来创建新的自定义的 GObject<br> 让我们保持这样子的目录结构:<pre class=language-txt data-lang=txt><code class=language-txt data-lang=txt>src
+├── custom_button
+│   ├── imp.rs
+│   └── mod.rs
+└── main.rs
+</code></pre><p>在 glib 中, 我们将通过创建两个结构体来创建一个子类<br> 我们将会创建一个新的 GObject, 通过继承成为 <code>gtk::Button</code> 的子类, 以此添加一些自定义的功能<hr><h1 id=zi-lei-hua>子类化</h1><p>如上面的目录结构所示, 我们定义了一个叫 <code>custom_button</code> 的模块, 在 <code>mod.rs</code> 中将 <code>CustomButton</code> 暴露给外部<br> 其实这就是 C 语言中实现子类化的模板, 我们将遵循这个规则, 通过定义两个 struct 来描述子类:<ul><li><code>imp.rs</code> 被用来存储自定义的状态, 存储继承自父类待 override 的虚函数<li><code>custom_button::imp</code> 是私有模块, <code>custom_button::imp::CustomButton</code> 也是私有的<li><code>custom_button::imp::CustomButton</code> 将被暴露给外界的 <code>custom_button::CustomButton</code> 使用, 作为其养料</ul><p>简单来说, 我们正在利用模块, 对子类化的 GObject 的功能进行分门别类, 让其定义更加清晰罢了<p>下面是具体代码, 直接抄书:<figcaption>src/custom_button/imp.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use gtk::glib;
+use gtk::subclass::prelude::*;
+
+// Object holding the state
+#[derive(Default)]
+pub struct CustomButton;
+
+// The central trait for subclassing a GObject
+#[glib::object_subclass]
+impl ObjectSubclass for CustomButton {
+    const NAME: &'static str = "MyGtkAppCustomButton";
+    type Type = super::CustomButton;
+    type ParentType = gtk::Button;
+}
+
+// Trait shared by all GObjects
+impl ObjectImpl for CustomButton {}
+
+// Trait shared by all widgets
+impl WidgetImpl for CustomButton {}
+
+// Trait shared by all buttons
+impl ButtonImpl for CustomButton {}
+</code></pre><p>先前也说了, 模块 <code>imp.rs</code> 的作用便是描述一个子类, 负责新添加的状态与待覆写的虚函数<br> 对于某个子类 GObject 的描述, 在 <code>ObjectSubclass</code> 中:<ul><li><code>NAME</code>: 该 GObject 的名字<li><code>Type</code>: 指之后将被创建的, 实际的 GObject<li><code>ParentType</code>: 我们继承的那个父类 GObject</ul><p>你可能会疑惑, 这个 <code>Name</code> 与 <code>Type</code> 是什么鬼, 就不能直接用 <code>Type (我们在Rust中实际创建的类型)</code> 作为 <code>NAME</code> 吗?<p>别忘了, gtk 是一套跨语言的通用 GUI 框架, 拥有几十种语言的绑定, 设计必然不能拘泥在一种语言上<br> 不同语言自有不同命名规范, 必然得先统一风格, 比如之后会学习的 <code>.ui</code> 为后缀的 xml 文件, 可以用来描述界面, 不管哪个语言都是通用的<p>因此, <code>NAME</code> 是用来描述其名字, 是统一的, 为避免命名冲突, 应使用 crate-name 与 object-name 组成 (UpperCamelCase)<br> 而 <code>Type/ParentType</code> 则是特定于语言的某个具体类型, 此处是Rust中的 <code>CustomButton</code>/<code>gtk::Button</code><p>再提一嘴, 之后将学习的以 <code>.ui</code> 为后缀的 xml 文件, 可以创建 GtkBuilder template class(模板类), 像下面这样去描述界面:<pre class=language-xml data-lang=xml><code class=language-xml data-lang=xml>&LT?xml version="1.0" encoding="UTF-8"?>
+&LTinterface>
+  &LTtemplate class="GtkAppWindow" parent="GtkApplicationWindow">
+    &LTproperty name="title">My GTK App&LT/property>
+    &LTchild>
+      &LT!-- 此处使用 `CustomButton` 指定 widget 的类型 -->
+      &LTobject class="CustomButton" id="button_1">
+        &LTproperty name="label">Press me!&LT/property>
+        &LTproperty name="margin-top">12&LT/property>
+        &LTproperty name="margin-bottom">12&LT/property>
+        &LTproperty name="margin-start">12&LT/property>
+        &LTproperty name="margin-end">12&LT/property>  
+      &LT/object>
+    &LT/child>
+  &LT/template>
+&LT/interface>
+</code></pre><p>你可能还会在之后对 gtk 框架的一些地方感到疑惑, 因此请记住: gtk 是一套通用的 gui 框架, 不止是为一种语言服务的<p>接下来是将暴露给外界的 <code>CustomButton</code>:<figcaption>src/custom_button/mod.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>mod imp;
+
+use glib::Object;
+use gtk::glib;
+
+glib::wrapper! {
+    pub struct CustomButton(ObjectSubclass&LTimp::CustomButton>)
+        @extends gtk::Button, gtk::Widget,
+        @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
+}
+
+impl CustomButton {
+    pub fn with_label(label: &str) -> Self {
+        Object::new(&[("label", &label)])
+    }
+}
+</code></pre><p><code>glib::wrapper!</code> 顾名思义, 能帮我们将 <code>imp::CustomButton</code> 进行包装, 自动生成相关实现, 避免大量样例代码, 我们只需指明其继承情况即可:<ul><li><code>@extends</code>: 指明所有父类 GObject<li><code>@implements</code>: 指明所有实现的 Interface (在 Rust 中是 Trait)<li><code>imp::CustomButton</code>: 经过宏成为了被暴露的 <code>CustomButton</code> 的 inner 成员<li><code>with_label</code>: 添加了自己的将被暴露的新方法, 设置了 GObject 的 property (<code>Object::new</code> 的返回值是泛型, 此处会自动推导为 <code>Self</code>)</ul><p>我们可以通过 <a href=https://docs.gtk.org/gtk4/class.Button.html#hierarchy>docs/gtk/hierarchy</a> 来查看某个 GObject 的继承链情况<p>现在, <code>CustomButton</code> 实际上已经与 <code>gtk::Button</code> 一样了, 因此我们可以直接用其替换 <code>Button</code>:<figcaption>src/main.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>mod custom_button;
+
+use custom_button::CustomButton;
+use gtk::prelude::*;
+use gtk::{Application, ApplicationWindow};
+
+const APP_ID: &str = "xyz.jedsek.myapp";
+
+fn main() {
+    let app = Application::builder().application_id(APP_ID).build();
+    app.connect_activate(build_ui);
+    app.run();
+}
+
+fn build_ui(app: &Application) {
+    let button = CustomButton::with_label("Press me!");
+    button.set_margin_top(12);
+    button.set_margin_bottom(12);
+    button.set_margin_start(12);
+    button.set_margin_end(12);
+
+    let window = ApplicationWindow::builder()
+        .application(app)
+        .title("My GTK App")
+        .child(&button)
+        .build();
+
+    window.present();
+}
+</code></pre><p>执行 <code>mold -run cargo run</code>, 你会见识一模一样的效果 :)<hr><h1 id=zi-ding-yi>自定义</h1><p>没错, 这还不够, 如果费劲心思搞出来的子类只是和父类一般, 那就没必要搞了, 很简单的道理不是吗?<br> 令人兴奋的是, 我们还可以保存状态, 覆写虚函数!<p>下面是例子, 直接抄书, 我们将只覆写其中两个虚函数:<figcaption>src/custom_button/imp.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::cell::Cell;
+
+use gtk::glib;
+use gtk::prelude::*;
+use gtk::subclass::prelude::*;
+
+// Object holding the state
+#[derive(Default)]
+pub struct CustomButton {
+    number: Cell&LTi32>,
+}
+
+// The central trait for subclassing a GObject
+#[glib::object_subclass]
+impl ObjectSubclass for CustomButton {
+    const NAME: &'static str = "MyGtkAppCustomButton";
+    type Type = super::CustomButton;
+    type ParentType = gtk::Button;
+}
+
+// Trait shared by all GObjects
+impl ObjectImpl for CustomButton {
+    fn constructed(&self) {
+        self.parent_constructed();
+        self.obj().set_label(&self.number.get().to_string());
+    }
+}
+
+// Trait shared by all widgets
+impl WidgetImpl for CustomButton {}
+
+// Trait shared by all buttons
+impl ButtonImpl for CustomButton {
+    fn clicked(&self) {
+        self.number.set(self.number.get() + 1);
+        self.obj().set_label(&self.number.get().to_string())
+    }
+}
+</code></pre><p>我们为 <code>imp::CustomButton</code> 添加了一个状态, 也就是其成员 <code>number</code>, 随后覆写了两个虚函数<br> (覆写构造函数时, 还得记得调用一下父类的构造函数, 完成整个构造链)<p>在被覆写的函数中, 我们都调用了 <code>self.obj()</code>, 你可以观察一下其签名:<figcaption glib::subclass::types::obj></figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn obj(&self) -> crate::BorrowedObject&LTSelf::Type>
+</code></pre><p>还记得 <code>Self::Type</code> 是什么吗? 没错, 就是被暴露的那个 <code>CustomButton</code>, 而非 <code>imp::CustomButton</code>, 它才是被使用的真正实例(instance)<br> 此处的 <code>obj()</code> 方法, 其别名就是 <code>instance()</code>, 得到的是在 <code>main.rs</code> 中被创建的那个真正实例的引用<p>总而言之, 我们的所谓 <code>子类化</code>, 在rust中其实就是一个 warpper, 包装了一个来自gtk的部件<br> 随后通过实现诸如 <code>ObjectImpl</code> 之类的 trait, 修改了父部件原本的行为<p>顺便再复习一下, 防止有人看见这里而感疑惑: 为什么是 <code>clicked(&self)</code> 而非 <code>clicked(&mut self)</code>, 这样不应该更方便吗?<br> 这是因为每个 GObject 都是引用计数的, 所以能绕过编译器的检查(全是不可变借用), 之前提到过了<p>经过覆写虚函数, <code>CustomButton</code> 终于出现了有别于父类 <code>Button</code> 的新特性:<ul><li>被构造时: 初始化 label 为自己存储的状态数字<li>被点击时: 会让存储的状态数字+1, 随后更新 label</ul><p>现在调用 <code>mold -run cargo run</code>, 你将得到一个按钮, 按钮的 label 初始时为 0, 被点击后不断+1<hr><h1 id=shi-yong-qing-kuang>使用情况</h1><p>什么情况下适合使用 <code>glib::wrapper</code> 来模拟继承呢 (Rust 语言层面上不支持继承, 因此叫模拟)<ul><li>使用一个 widget, 其添加了自定义状态与覆写虚函数<li>将 Rust 对象传递给要求参数是 GObject 的函数 (因为 gtk 不只是 Rust 的GUI框架, 还是其他许多语言的 GUI 框架)<li>为某个对象添加 property 或 signal, 继承 glib 体系下的强大力量 (下面几节会讲)</ul><hr><p>上一篇: <a href=/posts/rust-gtk4/p3>p3~> 创建窗口</a><br> 下一篇: <a href=/posts/rust-gtk4/p5>p5~> GObject-通用类型</a></div></div><div class=bottom-footer style=height:140vh><div class="flex flex-col text-center border-t-2 py-8" style=background-color:#3b3b3b><span> <i class="iconfont icon-aixin text-red-500 align-middle"> </i> <span class=opacity-70> Jedsek </span> </span></div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><div class=pl-4><span> 哈喽, 哈喽!!!! 这里应该算是一个几乎不算彩蛋的小彩蛋吧? 只有当你浏览具有 目录|TOC 的文章时, 此段才会渲染<br> 其实这里是特意留白出来的底部 footer, 保证了当你点击右侧的 目录|TOC 且是最后一个 anchor 时, 一定能高亮它 <br> <br> 你可以想象一下, 如果没有这段 footer, 那么点击锚点时, 当最后一段目录的内容只有几行字时 <br> 由于底部行数过少, 就只能高亮到上面的锚点啦! <br> <br> 毕竟我高亮目录的实现思路, 是获取当前滚动的Y偏移量, 与锚点对应的 h1/h2 在博客左侧主体的Y偏移量, 进行计算来判断高亮哪个~ <br> 简单来说, 当 (window.scrollY + 200) >= anchor.offsetTop 时, 就会选择这个anchor, 随后进行高亮 <br> <br> 你可以试试在浏览器中按 F12 打开开发者工具, ctrl-c 选择此处 class 名称为 "bottom-footer" 的 div, 然后删除该结点 <br> 然后按 F12 退出开发者工具, 随后点击右侧的 目录|TOC 中的结点, 当最后一个 anchor 的内容过少时, 锚点无法被高亮 <br> 当然, 当最后一个 anchor 的行数稍微多一些时, 照样能够高亮最后一个目录 <br> <br> 如果你发现有无法高亮的情况, 嗯......那应该不太可能呢, 诶嘿～ </span><br><br></div><br></div></div><div class="sidebar flex-col w-48" style=display:flex><script>var show_sidebar_at_startup=(()=>{const a=document.getElementsByClassName(`sidebar`)[0];if(/Mobi|Android|iPhone/i.test(navigator.userAgent)&&a.style.display==`flex`){a.style.display=`none`}});show_sidebar_at_startup()</script><div class="nav flex flex-col gap-2 pb-auto opacity-100 text-center p-2" style=background-color:#2e2e2e><a class="text-xl font-medium no-underline hover:scale-110 duration-300" href=/ style=background-color:#2e2e2e> Jedsek's blog </a><span class="text-sm italic" style=background-color:#2e2e2e> 与其浊富 | 宁比清贫 </span><a href=/about style=background-color:#2e2e2e> <img class="my-avatar p-2 duration-300 hover:scale-110 hover:rotate-12 hover:rounded-3xl hover:opacity-80" src=/images/avatar.webp style=background-color:#2e2e2e> </a><nav class="px-2 pt-1"><ul class="list-none pl-0" id=menu><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/> <i class="iconfont icon-home left"></i> <span class="iconfont mr-10">首页</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/about> <i class="iconfont icon-about left"></i> <span class="iconfont mr-10">关于</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/sayings> <i class="iconfont icon-yulu left"> </i> <span class="iconfont mr-10">语录</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/categories> <i class="iconfont icon-Z-fenleidaohang left"></i> <span class="iconfont mr-10">分类</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/novels> <i class="iconfont icon-config_s left"></i> <span class="iconfont mr-10">小说</span> </a></ul></nav></div><script></script><div class="sticky top-0"><aside class="toc flex flex-col border-t-2 px-2 py-1 my-2"><div class="text-center text-2xl">目录|TOC</div><ul class="list-none px-2 text-left"><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#mu-lu-jie-gou>目录结构</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#zi-lei-hua>子类化</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#zi-ding-yi>自定义</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#shi-yong-qing-kuang>使用情况</a></ul></aside></div></div><div class="float-botton flex"><a class="float-botton-item no-underline" href=#> <i class="iconfont icon-arrowup"></i> </a><div class=float-bottton-seperator></div><div class="float-botton-item float-botton-toggle-sidebar" type=button><i class="iconfont icon-sidebar"></i></div></div></div><script src=/scripts/custom/ul.js></script><script src=/scripts/third_party/lightgallery.min.js></script><script src=/scripts/custom/fancybox.js></script><script src=/scripts/custom/codeblock.js></script><script src=/scripts/custom/sidebar.js></script><script src=/scripts/custom/toc.js></script><script>hljs.highlightAll();document.addEventListener(`pjax:complete`,()=>{hljs.highlightAll()})</script>

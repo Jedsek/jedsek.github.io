@@ -1,0 +1,195 @@
+<!doctype html><html class=scroll-smooth lang=zh-Hans><head><meta charset=utf-8><link crossorigin href=/manifest.json rel=manifest><script src=/scripts/custom/loadscript.js></script><link href=/styles/third_party/highlight.min.css rel=stylesheet><link href=/styles/third_party/highlight_themes/atom-one-dark.css rel=stylesheet><script src=/scripts/third_party/pjax.min.js></script><script src=/scripts/third_party/quicklink.umd.min.js></script><script src=/scripts/third_party/jquery.min.js></script><script src=/scripts/third_party/highlight/highlight.min.js></script><script src=/scripts/third_party/highlight/languages/rust.min.js></script><script src=/scripts/third_party/highlight/languages/nix.min.js></script><script src=/scripts/third_party/highlight/languages/haskell.min.js></script><script src=/scripts/third_party/highlight/languages/gleam.min.js></script><script src=/scripts/third_party/highlight/languages/scheme.min.js></script><link href=/iconfonts/iconfont.css rel=stylesheet><link href=/styles/custom/tailwind.css rel=stylesheet><link href=/styles/custom/style.css rel=stylesheet><script src=/scripts/custom/pjax.js></script><script src=/scripts/custom/pwa_install.js></script><script>document.documentElement.setAttribute(`data-theme`,`dark`)</script><script>if(navigator.serviceWorker!=null){navigator.serviceWorker.register(`/sw.js`).then((a=>{console.log(`Registered events at scope: `,a.scope)}))}</script><script>var GetCookie=(a=>{let e=0;var b=document.cookie.split(`;`);for(var c=e;c<b.length;c++){var d=b[c].split(`=`);if(a==d[e]){return unescape(d[1])}};return null});var SetCookie=((a,b)=>{document.cookie=a+ `=`+ escape(b)+ `; SameSite=None; Secure;`});var scrollback=(()=>{let a=`scroll`;if(GetCookie(a)!=null){const b=GetCookie(a);document.documentElement.scrollTo({top:b,left:0,behavior:`instant`})}})</script><script>window.addEventListener(`load`,()=>{quicklink.listen()})</script><script>loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}));document.addEventListener(`pjax:complete`,(()=>{loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}))}))</script><title> Jedsek | Blog </title><body onscroll='SetCookie("scroll",document.documentElement.scrollTop);' class=flex id=body onload=scrollback();><script src=/scripts/custom/fireworks.js></script><div class="flex flex-rol grow"><div class="content w-80 flex flex-col break-words pr-2 border-2 grow border-b-0 border-neutral-800 animate-in fade-in slide-in-from-top-8 duration-1000" style=background-color:#3b3b3b><div class=break-words style=min-height:100vh><div class="p-4 flex justify-center text-4xl" style=opacity:.84>gleam中的幽灵类型(phantom-type)</div><div class="p-4 flex align-center text-sm hover:scale-125 duration-300 w-fit" style=color:#999;margin-top:-16px;margin-left:auto;margin-right:auto><~~ 发表日期:2024-05-20 | 访问量: <span class=text-sm id=busuanzi_container_page_pv style=color:#999> <span class=text-sm id=busuanzi_value_page_pv style=color:#999></span></span> | 本文词数:2446 | 预计阅读时间:13分钟 ~~></div><div class=p-4><blockquote><p>了解下 gleam 语言中的幽灵类型(phantom-type)吧</blockquote><span id=continue-reading></span><h1 id=shen-me-shi-you-ling-lei-xing>什么是幽灵类型</h1><p>gleam 是门 <code>类型安全(type-safe)</code> 的语言, <code>幽灵类型(phantom-type)</code> 便是构成了此概念的部分技巧之一<br> <code>phantom-type(幽灵类型)</code> 是指出现在类型定义中, 但不会用任何构造器会使用到它的类型参数:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub type Xxx(phantom) {
+  Xxx
+}
+</code></pre><p>在 <code>Xxx</code> 类型中, 我们有一个类型参数 <code>phantom</code>, 该参数未在任何地方被使用, 但是这种幽灵类型却可用于提供额外的安全性/上下文<br> 幽灵类型无需支付任何运行时成本, 全都在编译期被处理!<blockquote><p>💡 在某些语言中, 当类型具有未使用的类型参数时, 编译器可能会发出警告(或直接拒绝编译)<br> 通常有特定于语言的解决方案, 例如 rust 中的 <code>PhantomData</code> 或 typeScript 中的 <code>impossible-fields</code></blockquote><p>以下是一些使用到了该技巧的例子:<hr><h1 id=chu-li-id>处理ID</h1><p>为了理解幽灵类型的用处, 让我们先从一个常见场景开始, 假设我们正在构建像 <a href=https://dev.to>dev.to</a> 或 <a href=https://medium.com>medium.com</a> 这样的社交博客平台<br> 我们希望支持不同的用户和博客, 因此为它们分配了唯一的 ID<p>我们是家斗志昂扬, 快速发展的初创公司, 因此仅实施了最简单的 ID 管理系统: 只需为 <code>Int</code> 起一个类型别名, 即可让事情顺利进行:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>type Id = Int
+</code></pre><p>平台支持 reddit 风格的操作对帖子进行 up-voting/liking(点赞), 我们有个函数 <code>upvote</code> , 它接受被点赞的帖子与点赞者的ID:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>fn upvote(user_id: Id, post_id: Id) {
+  // 操作数据库, 更新谁谁谁点赞了那一篇帖子
+  // ...
+  // ...
+}
+
+let user_id: Int = 114514
+let post_id: Int = 1919810
+
+upvote(user_id, post_id)
+</code></pre><p>这可以工作, 不过代价非常致命, 因为这里的代码并不存在任何的类型辅助, 也可以说这是个类型不安全的问题<br> 我们都知道 <code>114514</code> 是 <code>user_id</code>, 而 <code>1919810</code> 是 <code>post_id</code>, 所以连起来就是 <code>1145141919810</code>......<br> 倘若有一天你敲代码时, 脑子不小心昏了, 把两个参数传递错了位置:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>let user_id: Int = 114514
+let post_id: Int = 1919810
+
+upvote(post_id, user_id)
+</code></pre><p>你让帖子对用户进行了点赞! 你让 <code>1145141919810</code> 变成了 <code>1919810114514</code> ! 你真该死啊!<p>解决问题的方法之一是定义两个独立的类型, 而不是依靠类型别名:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>type PostId { PostId(Int) }
+type UserId { UserId(Int) }
+
+fn upvote(user_id: UserId, post_id: PostId) {
+  // ...
+  // ...
+}
+</code></pre><p>但这会导致你需要为每个类型编写重复的代码, 比如 <code>next</code>, <code>to_int</code>, <code>from_string</code>......<br> 实际上, 无论我们如何使用它, Id 的基本表示的形式都保持不变, 我们更希望在 Id 的上下文中进行指定, 以此检验类型的合法性<br> 依靠前文所述的幽灵类型, 我们可以这样做:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>type Id(kind) {  // &LT--- `kind` is a phantom type
+  Id(id: Int)
+}
+
+type User
+type Post
+
+fn upvote(user_id: Id(User), post_id: Id(Post)){
+  // ...
+  // ...
+}
+
+pub fn example() {
+  let user_id: Id(User) = Id(114514)
+  let post_id: Id(Post) = Id(1919810)
+  upvote(user_id, post_id)
+}
+</code></pre><p>现在的操作是类型安全的了, 当你交换两个参数的位置时便会报 <code>Type-mismatched</code> 的错误<br> 并且, 现在我们为 <code>Id</code> 类型实现一大堆通用的方法时, <code>Id</code> 仍然是个足够通用的概念:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>fn new() -> Id(kind) {
+  Id(0)
+}
+
+fn next(id: Id(kind)) -> Id(kind) {
+  Id(id.id + 1)
+}
+
+fn from_int(id) -> Id(kind) {
+  Id(id)
+}
+
+fn show(id: Id(kind)) -> String {
+  id.id |> int.to_string
+}
+
+let a: Id(Float) = 1
+show(a)  // 1
+
+let b: Id(String) = 2
+show(b)  // 2
+
+let c: Id(Bool) = 3
+show(c)  // 3
+</code></pre><p>我们不用再写 <code>UserId</code>/<code>PostId</code>/<code>IntId</code>/<code>FloatId</code>/<code>StringId</code>/<code>BoolId</code> 等类型了<hr><h1 id=chu-li-huo-bi>处理货币</h1><p>让我们考虑另一种情况:<br> 我们想要构建一个应用, 可以交易不同币种的货币(美元, 人民币, 日元, 欧元等), 且需要通过汇率, 在使用它们前转换为相同单位的货币<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>type Currency(a) {
+  Currency(Float)
+}
+
+fn from_float(n: Float) -> Currency(a) {
+  Currency(n)
+}
+
+type USD
+type GBP
+
+fn example() {
+  let dollars: Currency(USD) = from_float(2.5)
+  let pennies: Currency(GBP) = from_float(0.55)
+}
+</code></pre><p>现在我们有一些货币, 但无法对它们做些什么<br> 虽然数值已经被包含在 <code>Currency</code> 类型中, 但我们无法进行运算, 或将被包裹的值传递给以 <code>Float</code> 作为参数的函数<p>让我们编写两个函数来解决该问题: 编写 <code>update</code> 与 <code>combine</code> 来处理被包裹的内部的 <code>Float</code> 值<br> 我们将用 <code>update</code> 处理一个 <code>Currency</code>, 用 <code>combine</code> 处理两个相同币种的 <code>Currency</code><pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>fn from_float(n: Float) -> Currency(kind) {
+  Currency(n)
+}
+
+fn update(a: Currency(a), f: fn (Float) -> Float) -> Currency(a) {
+  let Currency(x) = a
+  x |> f |> from_float
+}
+
+fn combine(a: Currency(a), b: Currency(a), f: fn (Float, Float) -> Float) -> Currency(a) {
+  let Currency(x) = a
+  let Currency(y) = b
+  f(x, y) |> from_float
+}
+</code></pre><p>因为 <code>Currency</code> 的类型参数不会改变(这些函数接受 <code>Currency(a)</code> 并返回 <code>Currency(a)</code>, 所以它们始终操作并返回相同币种的货币<br> (这就是幽灵类型在这里发挥的作用)<blockquote><p>💡 对于其他数据结构, 这些函数可以叫作 <code>map</code> 与 <code>map2</code>, 意味着类型可以更改: <code>list.map</code> 可用于将 <code>List(a)</code> 转换为 <code>List(b)</code><br> 因为我们在这里拒绝将 <code>Currency(USD)</code> 转换为 <code>Currency(GBP)</code>, 始终保持 <code>Currency(a)</code>. 所以这些函数被起了不同的名称 :)</blockquote><p>我们可以使用这两个函数来定义更多的函数, 比如将 <code>Currency</code> 加倍, 或将两种不同币种的 <code>Currency</code> 相加:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub fn double(a: Currency(a)) -> Currency(a) {
+  update(a, fn (x) { x * 2 })
+}
+
+pub fn add(a: Currency(a), b: Currency(a)) -> Currency(a) {
+  combine(a, b, fn (x, y) { x + y })
+}
+</code></pre><p>上面的代码, 我们始终只对相同币种(<code>Currency(a)</code>) 进行操作, 但如果我们想将两种货币加在一起呢?<br> 为此, 我们需通过汇率, 将一种货币转换为另一种货币, 我们可以在这里再次使用幽灵类型<p><code>Exchange</code> 类型描述了从某种货币到另一种货币的汇率:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>type Exchange(from, to) {
+  Exchange(Float)
+}
+
+fn exchange_rate(r: Float) -> Exchange(from, to) {
+  Exchange(r)
+}
+</code></pre><p>现在, 就像我们对 <code>Currency</code> 所做的那样, 我们可以定义一些 <code>Exchange</code> 的实例:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>let gbp_to_usd: Exchange(GBP, USD) = exchange_rate(1.41)
+let usd_to_gbp: Exchange(USD, GBP) = exchange_rate(0.71)
+</code></pre><p>我们利用所知道的关于幽灵类型的信息, 可以定义一个 <code>convert</code> 函数, 它是类型安全的, 因为我们永远无法输入错误的汇率, 所有幽灵类型都必须匹配!<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub fn convert(a: Currency(from), e: Exchange(from, to)) -> Currency(to) {
+  let Currency(x) = a
+  let Exchange(r) = e
+  x *. r |> from_float
+}
+</code></pre><p>我们编写的函数对所有货币都是通用的, 并且这是类型安全的<hr><h1 id=yan-zheng-shu-ju>验证数据</h1><p>到目前为止, 我们已经看到 <code>Id</code>, <code>Currency</code> 这两个使用了幽灵类型作为技巧的类型, 调用者只需提供类型注释即可向编译器断言某物的类型<br> 这样做时, 编译器将停止在错误的位置, 拒绝使用两个类型不安全的值<p>我们也可以将幽灵类型用于相反的目的, 以限制用户可以创建的类型, 并通过我们的代码进行验证, 然后推动用户做些事情<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub opaque type Password(kind) {
+  Password(String)
+}
+
+pub type Invalid
+pub type Valid
+
+pub fn from_string(s: String) -> Password(Invalid) {
+  Password(s)
+}
+</code></pre><p>与前面的实例不同, 之前是由用户来指定断言类型, 比如 <code>Id(User)</code>, 而我们自然也可以在库中使用<br> 在这段代码中, <code>Password</code> 是个 <code>opaque-type(不透明类型)</code>, 意味着只有定义了该类型的模块(同文件下), 才能构造与模式匹配该类型的值<br> 因此当用户使用了这个类型想要创建密码时, 只能通过 <code>from_string</code> 函数<p>由用户传入的字符串所创建的密码, 默认未经验证, 所以在类型上是非法(Invalid)的, 用户需通过我们提供的验证手段来获得合法密码<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub type InvalidReason{
+  TooLong
+  TooShort
+  NoNumber
+  NoLetter
+  // ...
+  // ...
+}
+
+pub fn validate(password: Password(Invalid)) -> Result(Password(Valid), InvalidReason) {
+  // ...
+}
+
+pub fn suggest(passwor: Password(Invalid)) -> String {
+  // ...
+}
+
+pub fn create_user(username: String, password: Password(Valid)) -> User {
+  // ...
+}
+</code></pre><p>上面再次呈现了一段类型安全的代码, 因为 <code>Password</code> 是 <code>opaque</code> 的, 所以用户必须通过 <code>validate</code> 来获取合法的密码<br> <code>suggest</code> 函数为非法密码给出了一些建议, <code>create_user</code> 只接收合法密码并创建用户<p>因为只有 <code>validate</code> 检验成功才能获得 <code>Password(Valid)</code><br> 所以在其他使用了 <code>Password(Valid)</code> 的地方, 接收的密码一定是合法的<p>对比以下这段代码:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub type Password {
+  // ...
+}
+
+pub fn is_valid(Pasword) -> Bool {
+  // ...
+}
+
+pub fn create_user(username: String, password: Password) -> User {
+  // ...
+}
+</code></pre><p>显而易见, 这段代码不是类型安全的: 你如何确保用户就一定会乖乖调用 <code>is_valid</code>, 而不是直接传入非法的代码呢?<br> 因此只好由库作者多做一些工作, 由我们来为用户调用 <code>is_valid</code>, 然后设计一些其他的 api 确保工作顺利......<p>相比之下, 前一段代码直接将这些暴露出来交给了用户: 你爱调不调, 反正你不调用 <code>validate</code> 函数就永远得不到类型上合法的密码<hr><h1 id=ti-gong-shang-xia-wen>提供上下文</h1><p>在 gleam 中, 可能引发错误的函数通常使用 <code>Result</code> 类型与特定的 <code>Error</code> 类型进行包装, 后者描述了所有失败的可能原因<br> 当两个函数(假设是 <code>accept</code> 和 <code>listen</code>)可能引发不同错误时, 我们想为这两个函数创建对应的 <code>Error</code> 类型<p>但两个函数之间共享部分错误时, 就会出现一个问题, 假设存在以下代码:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub type AcceptError = {
+  SystemLimit       // &LT-- Here
+  Closed
+  Timeout
+  Posix(inet.Posix) // &LT-- Here
+}
+
+pub type ListenError = {
+  SystemLimit        // &LT-- Here
+  Posix(inet.Posix)  // &LT-- Here
+}
+</code></pre><p>同一模块中的不同类型, 不可能具有相同名称的变体, 否则编译器怎么知道 <code>SystemLimit</code> 到底是 <code>AcceptError</code> 还是 <code>ListenError</code><br> (...嗯, 这里其他语言的读者可能会觉得有些反直觉, 建议习惯适应一下)<p>我们当然可以给每个变体添加特定的前缀, 或为它们创建单独的模块<br> 我们亦可以放弃特定于函数的 <code>Error</code> 类型而创建整个模块下的单一 <code>Error</code> 类型<p>这些解决方案要么看起来太繁琐, 要么当需要共享类型时变得复杂, 要么失去了表达特定于某个函数的错误类型的能力<br> 但如果我们可以使用幽灵类型, 就可以启用一个新的选项:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub type Error(from) {
+  SystemLimit
+  Closed
+  Timeout
+  Posix(inet.Posix)
+}
+
+pub opaque type AcceptFn { AcceptFn }
+pub opaque type ListenFn { ListenFn }
+
+pub fn accept() -> Error(AcceptFn) {
+  // ...
+}
+
+pub fn listen() -> Error(ListenFn) {
+  // ...
+}
+</code></pre><p>虽然这种方法无法带来额外的安全性, 但它确实为使用此功能的开发人员提供了上下文线索<br> 在处理与抛出 <code>listen</code> 的错误时, 他们知道他们可以安全地忽略 <code>Closed</code> 和 <code>Timeout</code> 错误, 只关注相关的错误<p>通过幽灵类型来提供上下文线索, 这可能并不总是最好的设计决策, 但它确实在某些情况下在简单性和表现力之间取得了适当的平衡<hr><h1 id=bing-fei-ling-dan-miao-yao>并非灵丹妙药</h1><p>你可能渴望将幽灵类型应用于所有代码, 并利用额外的编译时安全性, 但在代码中使用它有一个注意点:<br> 我们不能基于幽灵类型对函数的行为进行分支<p>为了举例说明这一点，请考虑 <code>Currency</code> 类型的 <code>to_string</code> 函数的不可能实现:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub fn to_string (a: Currency(a)) -> String {
+  let Currency(val) = a
+  case a.phantom_type {
+    USD -> string.concat("$", float.to_string(val))
+    GBP -> string.concat("£", float.to_string(val))
+    // ...
+    // ...
+  }
+}
+</code></pre><p>这是不可能的, 因为 <code>to_string</code> 函数必须保证对所有 <code>Currency(a)</code> 都是通用的, 我们无法根据 <code>a</code> 的实际类型来改变行为<hr><h1 id=can-kao-zi-liao>参考资料</h1><ul><li><a href=https://blog.hayleigh.dev/phantom-types-in-gleam>https://blog.hayleigh.dev/phantom-types-in-gleam</a><li><a href="https://www.youtube.com/watch?v=3lYHFctx2Ks">https://www.youtube.com/watch?v=3lYHFctx2Ks</a></ul></div></div><div class=bottom-footer style=height:140vh><div class="flex flex-col text-center border-t-2 py-8" style=background-color:#3b3b3b><span> <i class="iconfont icon-aixin text-red-500 align-middle"> </i> <span class=opacity-70> Jedsek </span> </span></div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><div class=pl-4><span> 哈喽, 哈喽!!!! 这里应该算是一个几乎不算彩蛋的小彩蛋吧? 只有当你浏览具有 目录|TOC 的文章时, 此段才会渲染<br> 其实这里是特意留白出来的底部 footer, 保证了当你点击右侧的 目录|TOC 且是最后一个 anchor 时, 一定能高亮它 <br> <br> 你可以想象一下, 如果没有这段 footer, 那么点击锚点时, 当最后一段目录的内容只有几行字时 <br> 由于底部行数过少, 就只能高亮到上面的锚点啦! <br> <br> 毕竟我高亮目录的实现思路, 是获取当前滚动的Y偏移量, 与锚点对应的 h1/h2 在博客左侧主体的Y偏移量, 进行计算来判断高亮哪个~ <br> 简单来说, 当 (window.scrollY + 200) >= anchor.offsetTop 时, 就会选择这个anchor, 随后进行高亮 <br> <br> 你可以试试在浏览器中按 F12 打开开发者工具, ctrl-c 选择此处 class 名称为 "bottom-footer" 的 div, 然后删除该结点 <br> 然后按 F12 退出开发者工具, 随后点击右侧的 目录|TOC 中的结点, 当最后一个 anchor 的内容过少时, 锚点无法被高亮 <br> 当然, 当最后一个 anchor 的行数稍微多一些时, 照样能够高亮最后一个目录 <br> <br> 如果你发现有无法高亮的情况, 嗯......那应该不太可能呢, 诶嘿～ </span><br><br></div><br></div></div><div class="sidebar flex-col w-48" style=display:flex><script>var show_sidebar_at_startup=(()=>{const a=document.getElementsByClassName(`sidebar`)[0];if(/Mobi|Android|iPhone/i.test(navigator.userAgent)&&a.style.display==`flex`){a.style.display=`none`}});show_sidebar_at_startup()</script><div class="nav flex flex-col gap-2 pb-auto opacity-100 text-center p-2" style=background-color:#2e2e2e><a class="text-xl font-medium no-underline hover:scale-110 duration-300" href=/ style=background-color:#2e2e2e> Jedsek's blog </a><span class="text-sm italic" style=background-color:#2e2e2e> 与其浊富 | 宁比清贫 </span><a href=/about style=background-color:#2e2e2e> <img class="my-avatar p-2 duration-300 hover:scale-110 hover:rotate-12 hover:rounded-3xl hover:opacity-80" src=/images/avatar.webp style=background-color:#2e2e2e> </a><nav class="px-2 pt-1"><ul class="list-none pl-0" id=menu><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/> <i class="iconfont icon-home left"></i> <span class="iconfont mr-10">首页</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/about> <i class="iconfont icon-about left"></i> <span class="iconfont mr-10">关于</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/sayings> <i class="iconfont icon-yulu left"> </i> <span class="iconfont mr-10">语录</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/categories> <i class="iconfont icon-Z-fenleidaohang left"></i> <span class="iconfont mr-10">分类</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/novels> <i class="iconfont icon-config_s left"></i> <span class="iconfont mr-10">小说</span> </a></ul></nav></div><script></script><div class="sticky top-0"><aside class="toc flex flex-col border-t-2 px-2 py-1 my-2"><div class="text-center text-2xl">目录|TOC</div><ul class="list-none px-2 text-left"><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#shen-me-shi-you-ling-lei-xing>什么是幽灵类型</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#chu-li-id>处理ID</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#chu-li-huo-bi>处理货币</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#yan-zheng-shu-ju>验证数据</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#ti-gong-shang-xia-wen>提供上下文</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#bing-fei-ling-dan-miao-yao>并非灵丹妙药</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#can-kao-zi-liao>参考资料</a></ul></aside></div></div><div class="float-botton flex"><a class="float-botton-item no-underline" href=#> <i class="iconfont icon-arrowup"></i> </a><div class=float-bottton-seperator></div><div class="float-botton-item float-botton-toggle-sidebar" type=button><i class="iconfont icon-sidebar"></i></div></div></div><script src=/scripts/custom/ul.js></script><script src=/scripts/third_party/lightgallery.min.js></script><script src=/scripts/custom/fancybox.js></script><script src=/scripts/custom/codeblock.js></script><script src=/scripts/custom/sidebar.js></script><script src=/scripts/custom/toc.js></script><script>hljs.highlightAll();document.addEventListener(`pjax:complete`,()=>{hljs.highlightAll()})</script>

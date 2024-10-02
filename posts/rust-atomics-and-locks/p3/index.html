@@ -1,0 +1,84 @@
+<!doctype html><html class=scroll-smooth lang=zh-Hans><head><meta charset=utf-8><link crossorigin href=/manifest.json rel=manifest><script src=/scripts/custom/loadscript.js></script><link href=/styles/third_party/highlight.min.css rel=stylesheet><link href=/styles/third_party/highlight_themes/atom-one-dark.css rel=stylesheet><script src=/scripts/third_party/pjax.min.js></script><script src=/scripts/third_party/quicklink.umd.min.js></script><script src=/scripts/third_party/jquery.min.js></script><script src=/scripts/third_party/highlight/highlight.min.js></script><script src=/scripts/third_party/highlight/languages/rust.min.js></script><script src=/scripts/third_party/highlight/languages/nix.min.js></script><script src=/scripts/third_party/highlight/languages/haskell.min.js></script><script src=/scripts/third_party/highlight/languages/gleam.min.js></script><script src=/scripts/third_party/highlight/languages/scheme.min.js></script><link href=/iconfonts/iconfont.css rel=stylesheet><link href=/styles/custom/tailwind.css rel=stylesheet><link href=/styles/custom/style.css rel=stylesheet><script src=/scripts/custom/pjax.js></script><script src=/scripts/custom/pwa_install.js></script><script>document.documentElement.setAttribute(`data-theme`,`dark`)</script><script>if(navigator.serviceWorker!=null){navigator.serviceWorker.register(`/sw.js`).then((a=>{console.log(`Registered events at scope: `,a.scope)}))}</script><script>var GetCookie=(a=>{let e=0;var b=document.cookie.split(`;`);for(var c=e;c<b.length;c++){var d=b[c].split(`=`);if(a==d[e]){return unescape(d[1])}};return null});var SetCookie=((a,b)=>{document.cookie=a+ `=`+ escape(b)+ `; SameSite=None; Secure;`});var scrollback=(()=>{let a=`scroll`;if(GetCookie(a)!=null){const b=GetCookie(a);document.documentElement.scrollTo({top:b,left:0,behavior:`instant`})}})</script><script>window.addEventListener(`load`,()=>{quicklink.listen()})</script><script>loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}));document.addEventListener(`pjax:complete`,(()=>{loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}))}))</script><title> Jedsek | Blog </title><body onscroll='SetCookie("scroll",document.documentElement.scrollTop);' class=flex id=body onload=scrollback();><script src=/scripts/custom/fireworks.js></script><div class="flex flex-rol grow"><div class="content w-80 flex flex-col break-words pr-2 border-2 grow border-b-0 border-neutral-800 animate-in fade-in slide-in-from-top-8 duration-1000" style=background-color:#3b3b3b><div class=break-words style=min-height:100vh><div class="p-4 flex justify-center text-4xl" style=opacity:.84>rust-atomics-and-locks-p3~> 原子</div><div class="p-4 flex align-center text-sm hover:scale-125 duration-300 w-fit" style=color:#999;margin-top:-16px;margin-left:auto;margin-right:auto><~~ 发表日期:2023-07-06 | 访问量: <span class=text-sm id=busuanzi_container_page_pv style=color:#999> <span class=text-sm id=busuanzi_value_page_pv style=color:#999></span></span> | 本文词数:1488 | 预计阅读时间:8分钟 ~~></div><div class=p-4><blockquote><p>原子一词源自希腊语 ἄτομος, 意为不可分割的之物, 在计算机科学中被用于描述不可分割的操作: 要么完全完成, 要么没有发生</blockquote><span id=continue-reading></span><h1 id=qian-yan>前言</h1><p>如上一节中的 "借用与数据竞赛" 中所述, 多个线程同时读取和修改同一变量, 通常会导致未定义行为(ub)<br> 但是, 原子操作确实允许不同的线程安全地读取和修改同一变量<p>由于此类操作是不可分割的, 因此它要么完全发生在另一个操作之前, 要么完全发生在另一个操作之后, 从而避免了未定义行为<br> 在之后几节, 我们将看到这在硬件级别是如何工作的<p>原子操作是涉及多个线程的任何内容的主要构建块, 所有其他并发原语(如 Mutex 和 Condvar), 都是使用原子操作实现的<br> 在 Rust 中，原子操作可以作为 <code>std::sync::atomic</code> 中的标准原子类型的方法使用<br> 它们的名称都以 Atomic 开头, 例如 AtomicI32 或 AtomicUsize<p>哪些可用取决于硬件体系结构, 有时也取决于操作系统, 但几乎所有平台都至少提供 size 最大到指针的所有原子类型<p>与大多数类型不同, 它们允许通过共享引用进行修改(例如 &AtomicU8), 这要归功于内部可变性, 如上一节中的 "内部可变性" 中所述<p>每种可用的原子类型都具有相同的接口, 其中包含用于存储和加载的方法<br> 比如 "fetch-and-modify" 操作, 以及一些更高级的 "compare-and-exchange"<br> 我们将在本章的其余部分, 详细讨论它们<p>但是, 在我们深入研究不同的原子操作之前, 我们需要简要地触及一个称为 Memory-Order(内存顺序) 的概念:<br> 每个原子操作都将 <code>std::sync::atomic::Ordering</code> 作为参数, 决定我们得到的关于操作的相对顺序的保证<br> 保证最少的最简单变体是 Relaxed, 其仍然保证单个原子变量的一致性, 但不承诺不同变量之间的相对操作顺序<p>这意味着, 两个线程可能会看到对不同变量的操作以不同的顺序发生<br> 例如, 如果一个线程先写入一个变量, 然后很快写入第二个变量, 则另一个线程可能会看到这种情况以相反的顺序发生<p>在本章中, 我们所研究的, 都是些上述问题不算问题的用例, 只需使用 Relaxed, 而无需详细了解细节<br> 我们将在之后某节, 讨论 Memory-Order 的所有细节, 以及其他可用的 Ordering<hr><h1 id=load-store>Load/Store</h1><p>我们将要看的两个原子操作是最基本的操作: load 和 store, 它们的函数签名如下, 以 AtomicI32 为例:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl AtomicI32 {
+    pub fn load(&self, ordering: Ordering) -> i32;
+    pub fn store(&self, value: i32, ordering: Ordering);
+}
+</code></pre><ul><li>load 方法以原子方式, 加载存储在原子变量中的值<li>store 方法以原子方式, 在其中存储新值</ul><p>请注意 store 方法接收共享引用(&T)而非独占引用(&mut ), 即使它修改了值<p>让我们看一下这两种方法的一些实际用例:<h2 id=li-ting-zhi-biao-zhi>例-停止标志</h2><p>第一个示例, 使用 AtomicBool 表示 stop flag, 此类 flag 用于通知其他线程, 让它们停止某些手头上的工作<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering::Relaxed;
+
+fn main() {
+    static STOP: AtomicBool = AtomicBool::new(false);
+
+    // Spawn a thread to do the work.
+    let background_thread = thread::spawn(|| {
+        while !STOP.load(Relaxed) {
+            some_work();
+        }
+    });
+
+    // Use the main thread to listen for user input.
+    for line in std::io::stdin().lines() {
+        match line.unwrap().as_str() {
+            "help" => println!("commands: help, stop"),
+            "stop" => break,
+            cmd => println!("unknown command: {cmd:?}"),
+        }
+    }
+
+    // Inform the background thread it needs to stop.
+    STOP.store(true, Relaxed);
+
+    // Wait until the background thread finishes.
+    background_thread.join().unwrap();
+}
+</code></pre><p>此示例中, 后台线程重复运行 some_work(), 而主线程允许用户输入一些文本作为命令, 以此与程序交互<br> 在这个简单的示例中, 唯一有用的命令是 "stop" 以使程序停止<p>若要使后台线程停止, 使用 AtomicBool 作为 flag, 将此条件传达给后台线程<br> 当前台线程读取 stop 命令时, 它将 flag 设置为 true, 后台线程在每次新迭代之前都会检查该标志<br> 主线程等待后台线程, 使用 join 方法完成其当前迭代<p>只要后台线程定期检查 flag, 这个简单的解决方案就可以很好地工作<br> 如果它长时间卡在 some_work() 中, 则可能导致 stop 命令和程序退出之间出现不可接受的延迟<h2 id=li-jin-du-bao-gao>例-进度报告</h2><p>在这个示例中, 我们在后台线程上逐个处理 100 个 item, 而主线程会定期向用户提供有关进度的更新:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::sync::atomic::AtomicUsize;
+
+fn main() {
+    let num_done = AtomicUsize::new(0);
+
+    thread::scope(|s| {
+        // A background thread to process all 100 items.
+        s.spawn(|| {
+            for i in 0..100 {
+                process_item(i); // Assuming this takes some time.
+                num_done.store(i + 1, Relaxed);
+            }
+        });
+
+        // The main thread shows status updates, every second.
+        loop {
+            let n = num_done.load(Relaxed);
+            if n == 100 { break; }
+            println!("Working.. {n}/100 done");
+            thread::sleep(Duration::from_secs(1));
+        }
+    });
+
+    println!("Done!");
+}
+</code></pre><p>这一次, 我们使用了作用域线程, 它会自动为我们处理线程的join, 且允许我们借用局部变量<br> 每次后台线程完成对 item 的处理时, 它都会将处理的item数量存在 AtomicUsize 中<br> 同时, 主线程向用户显示该数字, 以通知他们进度, 大约每秒一次<br> 一旦主线程看到所有 100 个 item 都已处理, 它就会退出 scope, 该 scope 隐式 join 了后台线程, 并通知用户一切都已完成<p><strong>Synchronization(同步):</strong><br> 处理最后一项后, 主线程可能需要一整秒钟才能知道, 从而在末尾引入不必要的延迟<br> 为解决该问题, 我们可以使用 Park(上一节中的内容), 在有主线程可能可能感兴趣的新消息时, 将主线程从 sleep 中唤醒<p>下面是相同的示例, 但使用 <code>thread::park_timeout</code> 替代了 <code>thread::sleep</code>:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn main() {
+    let num_done = AtomicUsize::new(0);
+
+    let main_thread = thread::current();
+
+    thread::scope(|s| {
+        // A background thread to process all 100 items.
+        s.spawn(|| {
+            for i in 0..100 {
+                process_item(i); // Assuming this takes some time.
+                num_done.store(i + 1, Relaxed);
+                main_thread.unpark(); // Wake up the main thread.
+            }
+        });
+
+        // The main thread shows status updates.
+        loop {
+            let n = num_done.load(Relaxed);
+            if n == 100 { break; }
+            println!("Working.. {n}/100 done");
+            thread::park_timeout(Duration::from_secs(1));
+        }
+    });
+
+    println!("Done!");
+}
+</code></pre><p>变化不大, 我们通过 <code>thread::current()</code> 获得了主线程的句柄, 现在后台线程使用它在每次状态更新后, unpark 主线程<br> 主线程现在使用 park_timeout 而不是 sleep, 因此可以中断<p>现在, 任何状态更新都会立即报告给用户, 同时仍然每秒重复一次更新, 以显示程序仍在运行<h2 id=li-yan-chi-chu-shi-hua>例-延迟初始化</h2><p>在我们继续更高级的原子操作之前, 最后一个示例是关于 Lazy-Initialization(延迟初始化) 的</div></div><div class=bottom-footer style=height:140vh><div class="flex flex-col text-center border-t-2 py-8" style=background-color:#3b3b3b><span> <i class="iconfont icon-aixin text-red-500 align-middle"> </i> <span class=opacity-70> Jedsek </span> </span></div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><div class=pl-4><span> 哈喽, 哈喽!!!! 这里应该算是一个几乎不算彩蛋的小彩蛋吧? 只有当你浏览具有 目录|TOC 的文章时, 此段才会渲染<br> 其实这里是特意留白出来的底部 footer, 保证了当你点击右侧的 目录|TOC 且是最后一个 anchor 时, 一定能高亮它 <br> <br> 你可以想象一下, 如果没有这段 footer, 那么点击锚点时, 当最后一段目录的内容只有几行字时 <br> 由于底部行数过少, 就只能高亮到上面的锚点啦! <br> <br> 毕竟我高亮目录的实现思路, 是获取当前滚动的Y偏移量, 与锚点对应的 h1/h2 在博客左侧主体的Y偏移量, 进行计算来判断高亮哪个~ <br> 简单来说, 当 (window.scrollY + 200) >= anchor.offsetTop 时, 就会选择这个anchor, 随后进行高亮 <br> <br> 你可以试试在浏览器中按 F12 打开开发者工具, ctrl-c 选择此处 class 名称为 "bottom-footer" 的 div, 然后删除该结点 <br> 然后按 F12 退出开发者工具, 随后点击右侧的 目录|TOC 中的结点, 当最后一个 anchor 的内容过少时, 锚点无法被高亮 <br> 当然, 当最后一个 anchor 的行数稍微多一些时, 照样能够高亮最后一个目录 <br> <br> 如果你发现有无法高亮的情况, 嗯......那应该不太可能呢, 诶嘿～ </span><br><br></div><br></div></div><div class="sidebar flex-col w-48" style=display:flex><script>var show_sidebar_at_startup=(()=>{const a=document.getElementsByClassName(`sidebar`)[0];if(/Mobi|Android|iPhone/i.test(navigator.userAgent)&&a.style.display==`flex`){a.style.display=`none`}});show_sidebar_at_startup()</script><div class="nav flex flex-col gap-2 pb-auto opacity-100 text-center p-2" style=background-color:#2e2e2e><a class="text-xl font-medium no-underline hover:scale-110 duration-300" href=/ style=background-color:#2e2e2e> Jedsek's blog </a><span class="text-sm italic" style=background-color:#2e2e2e> 与其浊富 | 宁比清贫 </span><a href=/about style=background-color:#2e2e2e> <img class="my-avatar p-2 duration-300 hover:scale-110 hover:rotate-12 hover:rounded-3xl hover:opacity-80" src=/images/avatar.webp style=background-color:#2e2e2e> </a><nav class="px-2 pt-1"><ul class="list-none pl-0" id=menu><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/> <i class="iconfont icon-home left"></i> <span class="iconfont mr-10">首页</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/about> <i class="iconfont icon-about left"></i> <span class="iconfont mr-10">关于</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/sayings> <i class="iconfont icon-yulu left"> </i> <span class="iconfont mr-10">语录</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/categories> <i class="iconfont icon-Z-fenleidaohang left"></i> <span class="iconfont mr-10">分类</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/novels> <i class="iconfont icon-config_s left"></i> <span class="iconfont mr-10">小说</span> </a></ul></nav></div><script></script><div class="sticky top-0"><aside class="toc flex flex-col border-t-2 px-2 py-1 my-2"><div class="text-center text-2xl">目录|TOC</div><ul class="list-none px-2 text-left"><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#qian-yan>前言</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#load-store>Load/Store</a><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#li-ting-zhi-biao-zhi>例-停止标志</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#li-jin-du-bao-gao>例-进度报告</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> └─<a class=text-sm href=#li-yan-chi-chu-shi-hua>例-延迟初始化</a></span></ul></aside></div></div><div class="float-botton flex"><a class="float-botton-item no-underline" href=#> <i class="iconfont icon-arrowup"></i> </a><div class=float-bottton-seperator></div><div class="float-botton-item float-botton-toggle-sidebar" type=button><i class="iconfont icon-sidebar"></i></div></div></div><script src=/scripts/custom/ul.js></script><script src=/scripts/third_party/lightgallery.min.js></script><script src=/scripts/custom/fancybox.js></script><script src=/scripts/custom/codeblock.js></script><script src=/scripts/custom/sidebar.js></script><script src=/scripts/custom/toc.js></script><script>hljs.highlightAll();document.addEventListener(`pjax:complete`,()=>{hljs.highlightAll()})</script>

@@ -1,0 +1,83 @@
+<!doctype html><html class=scroll-smooth lang=zh-Hans><head><meta charset=utf-8><link crossorigin href=/manifest.json rel=manifest><script src=/scripts/custom/loadscript.js></script><link href=/styles/third_party/highlight.min.css rel=stylesheet><link href=/styles/third_party/highlight_themes/atom-one-dark.css rel=stylesheet><script src=/scripts/third_party/pjax.min.js></script><script src=/scripts/third_party/quicklink.umd.min.js></script><script src=/scripts/third_party/jquery.min.js></script><script src=/scripts/third_party/highlight/highlight.min.js></script><script src=/scripts/third_party/highlight/languages/rust.min.js></script><script src=/scripts/third_party/highlight/languages/nix.min.js></script><script src=/scripts/third_party/highlight/languages/haskell.min.js></script><script src=/scripts/third_party/highlight/languages/gleam.min.js></script><script src=/scripts/third_party/highlight/languages/scheme.min.js></script><link href=/iconfonts/iconfont.css rel=stylesheet><link href=/styles/custom/tailwind.css rel=stylesheet><link href=/styles/custom/style.css rel=stylesheet><script src=/scripts/custom/pjax.js></script><script src=/scripts/custom/pwa_install.js></script><script>document.documentElement.setAttribute(`data-theme`,`dark`)</script><script>if(navigator.serviceWorker!=null){navigator.serviceWorker.register(`/sw.js`).then((a=>{console.log(`Registered events at scope: `,a.scope)}))}</script><script>var GetCookie=(a=>{let e=0;var b=document.cookie.split(`;`);for(var c=e;c<b.length;c++){var d=b[c].split(`=`);if(a==d[e]){return unescape(d[1])}};return null});var SetCookie=((a,b)=>{document.cookie=a+ `=`+ escape(b)+ `; SameSite=None; Secure;`});var scrollback=(()=>{let a=`scroll`;if(GetCookie(a)!=null){const b=GetCookie(a);document.documentElement.scrollTo({top:b,left:0,behavior:`instant`})}})</script><script>window.addEventListener(`load`,()=>{quicklink.listen()})</script><script>loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}));document.addEventListener(`pjax:complete`,(()=>{loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}))}))</script><title> Jedsek | Blog </title><body onscroll='SetCookie("scroll",document.documentElement.scrollTop);' class=flex id=body onload=scrollback();><script src=/scripts/custom/fireworks.js></script><div class="flex flex-rol grow"><div class="content w-80 flex flex-col break-words pr-2 border-2 grow border-b-0 border-neutral-800 animate-in fade-in slide-in-from-top-8 duration-1000" style=background-color:#3b3b3b><div class=break-words style=min-height:100vh><div class="p-4 flex justify-center text-4xl" style=opacity:.84>rust-terminal-p1~> 跨平台的现代终端alacritty</div><div class="p-4 flex align-center text-sm hover:scale-125 duration-300 w-fit" style=color:#999;margin-top:-16px;margin-left:auto;margin-right:auto><~~ 发表日期:2024-01-28 | 访问量: <span class=text-sm id=busuanzi_container_page_pv style=color:#999> <span class=text-sm id=busuanzi_value_page_pv style=color:#999></span></span> | 本文词数:852 | 预计阅读时间:5分钟 ~~></div><div class=p-4><blockquote><p>本节将介绍 alacritty && wezterm 两个 rust 开发的现代跨平台终端</blockquote><span id=continue-reading></span><p>同系列传送门: <a href=/categories/rust-terminal-world>rust-terminal-world</a><h1 id=jie-shao>介绍</h1><p>有许多终端可供你选择, 比如 windows 上的 windows terminal, 再比如 linux 上的 kitty, 不过它们并不跨平台(linux, windows, macos)<br> 而且它们的功能也都很强大, 跨平台真的有这么重要吗?<br> <del>(, 这不是废话吗, 跨平台的话受众也会广啊, 而且统一)</del>, 我后面介绍的一个工具也都是跨平台的, 所以干脆关于终端也开了一p, 仅此而已<p>有 2 个用 rust 开发的现代跨平台终端是我个人比较推荐的:<ul><li>alacritty: 专注于速度, 最快<li>wezterm: 专注于特性, 最友好</ul><p>我个人是使用了 alacritty, 因为可以和后面的 zellij 搭配在一起, 做出许多炫酷的事情, 但如果你对此不感兴趣, wezterm也是一个好选择<p>alacritty 确实相当快, github上放言要是benchmark不是第一就请去提issue, 但代价则是一些特性, 比如连体字(ligature), 终端图像显示, 多标签等的不支持<br> 但是相当稳定, 而且开发也很迅猛, bug修复快<p>wezterm 非常友善, bug 很多, 有比较大的性能问题, 毕竟支持的特性很多, 新特性的开发也很快, 支持连体字, 图片显示, 多标签等<br> 我个人用了相当长的时间, 但现在还是切回了 alacritty + zellij的组合<p>说句题外话, 不用觉得 alacritty 的开发者太固执不愿意支持连体字, 不用认为明明已经有支持连体字的fork为什么不合并, 人家也考虑过, 但字体渲染这一块确实很复杂<br> 原话是: "你就这么想用一个虽然支持连体字, 但是代码质量差且性能低下的fork吗?", 虽然刺耳与攻击性强了一点, 但确实是这个理<p>里面也提到过诸如多标签这种事情, 可以交给窗口管理器或者多路复用器, 也就是我目前使用的 alacritty+zellij 组合<br> 因为 zellij 的自定义程度相当高, 包括布局, 美化啥的, 但初次启动加载时会耗费一段时长<br> 如果基于本来就很快的 alacritty, 启动速度会稍微好一点 (在我电脑上还是比 wezterm 快一点)<p>我也在系列开口就提过了, 这些章节充满个人喜好, 因为我目前使用 alacritty+zellij, 所以就暂且只介绍它们, 如果切到其他的也会实时更新滴 ~~<hr><h1 id=pei-zhi>配置</h1><p>懒得说, 建议自己去看官网的 <a href=https://alacritty.org/config-alacritty.html>guide</a>, 我贴一下配置文件, 意思是不言自喻的:<figcaption>~/.config/alacritty/alacritty.toml</figcaption><pre class=language-toml data-lang=toml><code class=language-toml data-lang=toml>import = [
+  "~/.config/alacritty/themes/nord.toml",
+]
+
+
+# 注意，必须设置default shell, 启动zellij, 而不是启动nu再启动zellij
+[shell]
+program = "zellij"
+args = [
+  "options",
+  "--default-shell",
+  "nu"
+]
+
+[window]
+decorations = "None"
+padding = { x = 4, y = 0 }
+opacity = 0.94
+blur = false 
+startup_mode = "Windowed"
+
+[font]
+normal = { family = "JetBrainsMono Nerd Font"}
+size = 13
+
+[mouse]
+hide_when_typing = true
+</code></pre><figcaption class=fold-close>~/.config/alacritty/themes/nord.toml</figcaption><pre class=language-toml data-lang=toml><code class=language-toml data-lang=toml>[colors.primary]
+foreground = "#d8dee9"
+background = "#2e3440"
+dim_foreground = "#a5abb6"
+
+[colors.cursor]
+text = "#2e3440"
+cursor = "#d8dee9"
+
+[colors.vi_mode_cursor]
+text = "#2e3440"
+cursor = "#d8dee9"
+
+[colors.search.matches]
+foreground = "CellBackground"
+background = "#88c0d0"
+
+[colors.search.focused_match]
+foreground = "#d8dee9"
+background = "#434c5e"
+
+[colors.bright]
+black = "#4c566a"
+blue = "#81a1c1"
+cyan = "#8fbcbb"
+green = "#a3be8c"
+magenta = "#b48ead"
+red = "#bf616a"
+white = "#eceff4"
+yellow = "#ebcb8b"
+
+[colors.dim]
+black = "#373e4d"
+blue = "#68809a"
+cyan = "#6d96a5"
+green = "#809575"
+magenta = "#8c738c"
+red = "#94545d"
+white = "#aeb3bb"
+yellow = "#b29e75"
+
+[colors.normal]
+black = "#3b4252"
+blue = "#81a1c1"
+cyan = "#88c0d0"
+green = "#a3be8c"
+magenta = "#b48ead"
+red = "#bf616a"
+white = "#e5e9f0"
+yellow = "#ebcb8b"
+
+
+[colors.selection]
+background = "#4c566a"
+text = "CellForeground"
+</code></pre><hr><h1 id=zi-ti>字体</h1><p>要注意一下, 那就是请配置一款 nerd-font的字体, 可以在终端上显示相当多的图标, 在之后使用终端上的文件管理器的时候, 或者编辑代码时用于美化, 比较重要 a 可以去 <a href=https://www.nerdfonts.com/>nerdfonts</a> 下载对应的字体, 寻找你想要的图标<hr><h1 id=zhan-shi>展示</h1><p>透明啊模糊啊啥的都给加上, 终端上面再自定义个状态栏(zellij的插件), 就酱<p><img alt=写zelliji插件时的真实场景 src=/images/rust/terminal-world/alacritty-1.webp#w90></div></div><div class=bottom-footer style=height:140vh><div class="flex flex-col text-center border-t-2 py-8" style=background-color:#3b3b3b><span> <i class="iconfont icon-aixin text-red-500 align-middle"> </i> <span class=opacity-70> Jedsek </span> </span></div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><div class=pl-4><span> 哈喽, 哈喽!!!! 这里应该算是一个几乎不算彩蛋的小彩蛋吧? 只有当你浏览具有 目录|TOC 的文章时, 此段才会渲染<br> 其实这里是特意留白出来的底部 footer, 保证了当你点击右侧的 目录|TOC 且是最后一个 anchor 时, 一定能高亮它 <br> <br> 你可以想象一下, 如果没有这段 footer, 那么点击锚点时, 当最后一段目录的内容只有几行字时 <br> 由于底部行数过少, 就只能高亮到上面的锚点啦! <br> <br> 毕竟我高亮目录的实现思路, 是获取当前滚动的Y偏移量, 与锚点对应的 h1/h2 在博客左侧主体的Y偏移量, 进行计算来判断高亮哪个~ <br> 简单来说, 当 (window.scrollY + 200) >= anchor.offsetTop 时, 就会选择这个anchor, 随后进行高亮 <br> <br> 你可以试试在浏览器中按 F12 打开开发者工具, ctrl-c 选择此处 class 名称为 "bottom-footer" 的 div, 然后删除该结点 <br> 然后按 F12 退出开发者工具, 随后点击右侧的 目录|TOC 中的结点, 当最后一个 anchor 的内容过少时, 锚点无法被高亮 <br> 当然, 当最后一个 anchor 的行数稍微多一些时, 照样能够高亮最后一个目录 <br> <br> 如果你发现有无法高亮的情况, 嗯......那应该不太可能呢, 诶嘿～ </span><br><br></div><br></div></div><div class="sidebar flex-col w-48" style=display:flex><script>var show_sidebar_at_startup=(()=>{const a=document.getElementsByClassName(`sidebar`)[0];if(/Mobi|Android|iPhone/i.test(navigator.userAgent)&&a.style.display==`flex`){a.style.display=`none`}});show_sidebar_at_startup()</script><div class="nav flex flex-col gap-2 pb-auto opacity-100 text-center p-2" style=background-color:#2e2e2e><a class="text-xl font-medium no-underline hover:scale-110 duration-300" href=/ style=background-color:#2e2e2e> Jedsek's blog </a><span class="text-sm italic" style=background-color:#2e2e2e> 与其浊富 | 宁比清贫 </span><a href=/about style=background-color:#2e2e2e> <img class="my-avatar p-2 duration-300 hover:scale-110 hover:rotate-12 hover:rounded-3xl hover:opacity-80" src=/images/avatar.webp style=background-color:#2e2e2e> </a><nav class="px-2 pt-1"><ul class="list-none pl-0" id=menu><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/> <i class="iconfont icon-home left"></i> <span class="iconfont mr-10">首页</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/about> <i class="iconfont icon-about left"></i> <span class="iconfont mr-10">关于</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/sayings> <i class="iconfont icon-yulu left"> </i> <span class="iconfont mr-10">语录</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/categories> <i class="iconfont icon-Z-fenleidaohang left"></i> <span class="iconfont mr-10">分类</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/novels> <i class="iconfont icon-config_s left"></i> <span class="iconfont mr-10">小说</span> </a></ul></nav></div><script></script><div class="sticky top-0"><aside class="toc flex flex-col border-t-2 px-2 py-1 my-2"><div class="text-center text-2xl">目录|TOC</div><ul class="list-none px-2 text-left"><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#jie-shao>介绍</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#pei-zhi>配置</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#zi-ti>字体</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#zhan-shi>展示</a></ul></aside></div></div><div class="float-botton flex"><a class="float-botton-item no-underline" href=#> <i class="iconfont icon-arrowup"></i> </a><div class=float-bottton-seperator></div><div class="float-botton-item float-botton-toggle-sidebar" type=button><i class="iconfont icon-sidebar"></i></div></div></div><script src=/scripts/custom/ul.js></script><script src=/scripts/third_party/lightgallery.min.js></script><script src=/scripts/custom/fancybox.js></script><script src=/scripts/custom/codeblock.js></script><script src=/scripts/custom/sidebar.js></script><script src=/scripts/custom/toc.js></script><script>hljs.highlightAll();document.addEventListener(`pjax:complete`,()=>{hljs.highlightAll()})</script>

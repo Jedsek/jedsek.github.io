@@ -1,0 +1,361 @@
+<!doctype html><html class=scroll-smooth lang=zh-Hans><head><meta charset=utf-8><link crossorigin href=/manifest.json rel=manifest><script src=/scripts/custom/loadscript.js></script><link href=/styles/third_party/highlight.min.css rel=stylesheet><link href=/styles/third_party/highlight_themes/atom-one-dark.css rel=stylesheet><script src=/scripts/third_party/pjax.min.js></script><script src=/scripts/third_party/quicklink.umd.min.js></script><script src=/scripts/third_party/jquery.min.js></script><script src=/scripts/third_party/highlight/highlight.min.js></script><script src=/scripts/third_party/highlight/languages/rust.min.js></script><script src=/scripts/third_party/highlight/languages/nix.min.js></script><script src=/scripts/third_party/highlight/languages/haskell.min.js></script><script src=/scripts/third_party/highlight/languages/gleam.min.js></script><script src=/scripts/third_party/highlight/languages/scheme.min.js></script><link href=/iconfonts/iconfont.css rel=stylesheet><link href=/styles/custom/tailwind.css rel=stylesheet><link href=/styles/custom/style.css rel=stylesheet><script src=/scripts/custom/pjax.js></script><script src=/scripts/custom/pwa_install.js></script><script>document.documentElement.setAttribute(`data-theme`,`dark`)</script><script>if(navigator.serviceWorker!=null){navigator.serviceWorker.register(`/sw.js`).then((a=>{console.log(`Registered events at scope: `,a.scope)}))}</script><script>var GetCookie=(a=>{let e=0;var b=document.cookie.split(`;`);for(var c=e;c<b.length;c++){var d=b[c].split(`=`);if(a==d[e]){return unescape(d[1])}};return null});var SetCookie=((a,b)=>{document.cookie=a+ `=`+ escape(b)+ `; SameSite=None; Secure;`});var scrollback=(()=>{let a=`scroll`;if(GetCookie(a)!=null){const b=GetCookie(a);document.documentElement.scrollTo({top:b,left:0,behavior:`instant`})}})</script><script>window.addEventListener(`load`,()=>{quicklink.listen()})</script><script>loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}));document.addEventListener(`pjax:complete`,(()=>{loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}))}))</script><title> Jedsek | Blog </title><body onscroll='SetCookie("scroll",document.documentElement.scrollTop);' class=flex id=body onload=scrollback();><script src=/scripts/custom/fireworks.js></script><div class="flex flex-rol grow"><div class="content w-80 flex flex-col break-words pr-2 border-2 grow border-b-0 border-neutral-800 animate-in fade-in slide-in-from-top-8 duration-1000" style=background-color:#3b3b3b><div class=break-words style=min-height:100vh><div class="p-4 flex justify-center text-4xl" style=opacity:.84>rust-tui-p2~> 基础架构</div><div class="p-4 flex align-center text-sm hover:scale-125 duration-300 w-fit" style=color:#999;margin-top:-16px;margin-left:auto;margin-right:auto><~~ 发表日期:2023-06-22 | 访问量: <span class=text-sm id=busuanzi_container_page_pv style=color:#999> <span class=text-sm id=busuanzi_value_page_pv style=color:#999></span></span> | 本文词数:2650 | 预计阅读时间:14分钟 ~~></div><div class=p-4><blockquote><p>本节我们将学习一个 tui 应用的基本架构</blockquote><span id=continue-reading></span><p>同系列传送门: <a href=/categories/rust-tui>rust-tui</a><h1 id=mo-ban-xiang-mu>模板项目</h1><p>本节的内容大致是带你捋下一个 tui 应用的基本架构， 参考项目是官方的 <a href=https://github.com/ratatui-org/rust-tui-template>ratatui-org/rust-tui-template</a> 模板文件<br> 在这之前, 你可以选择下载 <code>cargo-generate</code> 来快速开发 (当然光看下面的代码与概念也不是不行):<pre class=language-bash data-lang=bash><code class=language-bash data-lang=bash>cargo install cargo-generate
+</code></pre><p>上面的项目是一个模板项目, 专门为了让别人快速开始敲代码, 而不是将时间浪费在编写大量重复代码身上<br> 如果你选择下载了 <code>cargo-generate</code>, 你可以通过如下命令快速搭建一个叫做 <code>tui-demo</code> 的项目<br> (为了某些同学的网速考虑, 已经换成gitee镜像仓库了):<pre class=language-bash data-lang=bash><code class=language-bash data-lang=bash>cargo generate --git https://gitee.com/mirror_jedsek/rust-tui-template --name tui-demo
+</code></pre><p>你可以运行它, 然后看看效果如何:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>cd tui-demo
+cargo run
+</code></pre><p>你会获得一个经典的双按钮应用: 显示一个数字, 随着按键而 +1 或 -1, 差不多长这样:<pre class=pre-pure-center>
+┌────────────────────────────────────Template─────────────────────────────────────┐
+│                             This is a tui template                              │
+│                 Press `Esc`, `Ctrl-C` or `q to stop running.                    │
+│    Press left and right to increment and decrement th  counter respectively.    │
+│                                   Counter: 0                                    │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</pre><p>搭建过程讲完了, 下面开始正文, 关于架构的讲解<hr><h1 id=jia-gou-shuo-ming>架构说明</h1><pre class=language-bash data-lang=bash><code class=language-bash data-lang=bash>src/
+├── app.rs     -> 保存状态与应用逻辑
+├── event.rs   -> 将待处理的终端事件包装成我们自己定义的事件模型, 并且分发事件 (key/mouse/rsize 等)
+├── handler.rs -> 接受分发的事件, 并让具体的处理函数与其一一匹配 (本系列我们只处理按键事件, 即 key-event)
+├── lib.rs     -> 定义模块 (别把 `pub mod xxx` 写在 `main.rs` 里面而已) 
+├── main.rs    -> 应用程序的入口
+├── tui.rs     -> 初始化/退出tui时的一些操作
+└── ui.rs      -> 渲染组件ui
+</code></pre><p>项目中同时存在 <code>lib.rs</code> 与 <code>main.rs</code>, 因此存在两个crate, 前者是lib_crate, 后者是bin_crate<figcaption>src/lib.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>/// Application.
+pub mod app;
+
+/// Terminal events handler.
+pub mod event;
+
+/// Widget renderer.
+pub mod ui;
+
+/// Terminal user interface.
+pub mod tui;
+
+/// Event handler.
+pub mod handler;
+</code></pre><p><code>lib.rs</code> 定义了这些模块, 因此我们不必在 <code>main.rs</code> 的头部再定义了<p><strong>注意:</strong><br> 当 <code>lib.rs</code> 与 <code>main.rs</code> 同时存在时, 视 <code>lib.rs</code> 为项目根, 调用里面的东西用 <code>crate::xxx</code><br> 而 <code>main.rs</code> 则视作作为依赖的bin_crate, 比如你的项目叫 <code>tui_app</code>, 调用里面的东西时就用 <code>tui_app::xxx</code> 即可<p>看着这些架构, 你可能会有点懵, 没事, 爷慢慢跟你说, 保证你能明白<h2 id=zhuang-tai-guan-li>状态管理</h2><p>我们从简单开始, 先看 <code>app.rs</code>:<figcaption>src/app.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::error;
+
+/// Application result type.
+pub type AppResult&LTT> = std::result::Result&LTT, Box&LTdyn error::Error>>;
+
+/// Application.
+#[derive(Debug)]
+pub struct App {
+    /// Is the application running?
+    pub running: bool,
+    /// counter
+    pub counter: u8,
+}
+
+impl Default for App {
+    fn default() -> Self {
+        Self {
+            running: true,
+            counter: 0,
+        }
+    }
+}
+
+impl App {
+    /// Constructs a new instance of [`App`].
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Handles the tick event of the terminal.
+    pub fn tick(&self) {}
+
+    /// Set running to false to quit the application.
+    pub fn quit(&mut self) {
+        self.running = false;
+    }
+
+    pub fn increment_counter(&mut self) {
+        if let Some(res) = self.counter.checked_add(1) {
+            self.counter = res;
+        }
+    }
+
+    pub fn decrement_counter(&mut self) {
+        if let Some(res) = self.counter.checked_sub(1) {
+            self.counter = res;
+        }
+    }
+}
+</code></pre><p>逻辑很简单, <code>App</code> 结构体里装着随应用运行而可能被改变的状态, 除此以外, 我们还定义了一些方法来修改这些状态<p>比如 <code>quit()</code> 会让 <code>running</code> 变成 false, 以此来退出程序<br> 比如 <code>inc()/dec()</code> 会让要显示的数字的值 +1/-1, 并保证处于 0..=255 的范围内不产生溢出<p>你可能会问, <code>tick()</code> 这玩意是干啥的? 空方法有啥用?<p>在这之前, 你需要了解下 <code>Tick</code> 的概念, 其意思是时钟秒针的滴答声, 用来表示时间的最小化单位<br> 现实世界中目前可观测到的时间的最小单位是普朗克时间, 但一个运行在计算机里面的应用肯定不能这么算啊<p>举个例子, 在著名的MMO类型游戏, Screeps 中, 游戏的基本时间单位就叫 <code>tick</code><br> 所有玩家的代码会在同一时间并行执行, 随后以最后一份代码执行的结束, 代表着这一 <code>tick</code> 的结束<br> 再举个例子, 在大部分枪战fps游戏中, 也有 <code>tick</code> 这个概念, 代表每秒钟可以刷新多少次<p>在该模板项目中, 会在一个设定好的时间如 200ms 后, 尝试着捕获一次终端事件, 若什么事件也没, 那就分发一个 Event::Tick 给我们的处理程序<br> 在处理程序中, 当接受到 Tick 事件时, 我们返回一个 (), 以此来无视它, 状态的变化啊, 视图的更改啊什么的, 也就根本不会发生<p>这里的 <code>tick()</code> 方法, 也就是我们对 Event::Tick 事件的处理函数啦! 函数体是空的也就表示着无视它哦<h2 id=chu-li-cheng-xu>处理程序</h2><p>讲完了 <code>app.rs</code> 中 <code>状态的保存</code> 与 <code>状态的更改</code> 之后, 我们会来看下 <code>handler.rs</code>, 即对事件的处理部分<br> 代码如下:<figcaption>src/handler.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use crate::app::{App, AppResult};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+
+/// Handles the key events and updates the state of [`App`].
+pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
+    match key_event.code {
+        // Exit application on `ESC` or `q`
+        KeyCode::Esc | KeyCode::Char('q') => {
+            app.quit();
+        }
+        // Exit application on `Ctrl-C`
+        KeyCode::Char('c') | KeyCode::Char('C') => {
+            if key_event.modifiers == KeyModifiers::CONTROL {
+                app.quit();
+            }
+        }
+        // Counter handlers
+        KeyCode::Right => {
+            app.increment_counter();
+        }
+        KeyCode::Left => {
+            app.decrement_counter();
+        }
+        // Other handlers you could add here.
+        _ => {}
+    }
+    Ok(())
+}
+</code></pre><p><code>crossterm</code> 是一个用于操作终端的跨平台库, 提供了一些抽象与封装, 比如 <code>KeyEvent</code>:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub struct KeyEvent {
+    /// The key itself.
+    pub code: KeyCode,
+    /// Additional key modifiers.
+    pub modifiers: KeyModifiers,
+    
+    // ......
+    // ......
+    // ......
+}
+</code></pre><ul><li><code>code</code>: 表示你按下的比如字母啊数字啊这种<li><code>modifiers</code>: 表示修饰键, 如 <code>Shift</code>/<code>Ctrl</code>/<code>Alt</code>/<code>Super (windows里的图标键, 或macos里的cmd键)</code></ul><p>顺带一提, 类似的终端操作库还有:<ul><li><code>termion</code>: 不跨平台, 仅限linux<li><code>termwiz</code>: <code>wezterm</code> 的配套终端操作库, 有很多高级特性 + 跨终端, 但文档少而且api有亿点难用</ul><p><code>ratatui-rs</code> 对其都有适配与支持, 比如当你如果想使用 <code>termwiz</code> + <code>ratatui</code>, 可以这样:<figcaption>Cargo.toml</figcaption><pre class=language-toml data-lang=toml><code class=language-toml data-lang=toml>tui = { package = "ratatui", version = "0.24", default_features = false, features = ["crossterm", "macros"] }
+termwiz = { version = "0.20.0", features = ["use_image"] }
+</code></pre><p>本系列都将使用 <code>crossterm</code>, 因为资料多文档全 <del>(加上懒)</del><p>位于 <code>handler.rs</code> 中的代码很好理解, 不过你可能还会再问:<br> 实际的处理程序, 好像就是 <code>app.rs</code> 里面的方法啊?<br> 那能不能取消这个模块, 全装到 <code>App</code> 里面去呢?<p>刑, 当然可刑, 只是耦合度太高了, 不能想现在这样一目了然<p>你想啊, 如果你全装到 <code>app.rs</code> 里面去, 本来只需要管理状态, 对状态进行保存与更改<br> 但现在就得与其他模块, 比如 <code>event.rs</code> 接轨打交道, 接受分发过来的事件并匹配相应的处理函数<br> 耦合度太高了! 各种事情粘在一起, 耦合在一起, 复杂啊!<p>因此, <code>handler.rs</code> 是必不可少的, 其作用就像是网页中的路由那样, 调用着 <code>app.rs</code> 中改变状态的方法, 降低了耦合度<p><strong>注意:</strong><br> 此处仅处理按键事件, 这也是大多数 tui 应用会处理的唯一事件<br> 你没有看见 <code>app::tick()</code>, 是因为 Event::Tick 不是按键事件, 自然没有在处理按键的相应函数中看见<br> 在 <code>main.rs</code> 中, 对全部终端事件的处理是这样的 (后面会讲) :<figcaption>src/main.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>// ......
+    // Handle events.
+    match tui.events.next()? {
+        Event::Tick => app.tick(),
+        Event::Key(key_event) => handle_key_events(key_event, &mut app)?,
+        Event::Mouse(_) => {}
+        Event::Resize(_, _) => {}
+    }
+// ......
+</code></pre><h2 id=shi-tu-xuan-ran>视图渲染</h2><p>一样, 我们先把简单的模块看了:<figcaption>src/ui.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use tui::{
+    backend::Backend,
+    layout::Alignment,
+    style::{Color, Style},
+    widgets::{Block, BorderType, Borders, Paragraph},
+    Frame,
+};
+
+use crate::app::App;
+
+/// Renders the user interface widgets.
+pub fn render&LTB: Backend>(app: &mut App, frame: &mut Frame&LTB>) {
+    // This is where you add new widgets.
+    // See the following resources:
+    // - https://docs.rs/ratatui/latest/ratatui/widgets/index.html
+    // - https://github.com/tui-rs-revival/ratatui/tree/master/examples
+    frame.render_widget(
+        Paragraph::new(format!(
+            "This is a tui template.\n\
+                Press `Esc`, `Ctrl-C` or `q` to stop running.\n\
+                Press left and right to increment and decrement the counter respectively.\n\
+                Counter: {}",
+            app.counter
+        ))
+        .block(
+            Block::default()
+                .title("Template")
+                .title_alignment(Alignment::Center)
+                .borders(Borders::ALL)
+                .border_type(BorderType::Rounded),
+        )
+        .style(Style::default().fg(Color::Cyan).bg(Color::Black))
+        .alignment(Alignment::Center),
+        frame.size(),
+    )
+}
+</code></pre><p>看懂就行, 渲染了一个组件叫 <code>Paragraph</code>, 将 <code>app</code> 里面的状态, 即 <code>app.counter</code> 放上去显示<br> 因为 <code>ratatui-rs</code> 是 <code>即时模式</code> 的渲染策略, 所以用起来会比较简单, 当按下按键后counter加减, 视图会因为重渲染自己更新<p>根据 <a href=https://github.com/tui-rs-revival/ratatui>github仓库</a> 里的介绍, 它会在每一个新帧渲染所有 UI<br> 这虽然为丰富的交互式 UI 提供了极大的灵活性，但也可能会因高度动态的内容而带来开销<br> <del>(根据这份README所说, 实际上鉴于Rust的速度, 开销一般来自于终端, 而不是库本身)</del><h2 id=shi-jian-bu-huo>事件捕获</h2><p>接下来, 我们将学习 <code>event.rs</code> 里的代码, 它们之后基本不会更改, 这里也就看个乐, 清楚下架构而已:<figcaption>src/event.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use crate::app::AppResult;
+use crossterm::event::{self, Event as CrosstermEvent, KeyEvent, MouseEvent};
+use std::sync::mpsc;
+use std::thread;
+use std::time::{Duration, Instant};
+
+/// Terminal events.
+#[derive(Clone, Copy, Debug)]
+pub enum Event {
+    /// Terminal tick.
+    Tick,
+    /// Key press.
+    Key(KeyEvent),
+    /// Mouse click/scroll.
+    Mouse(MouseEvent),
+    /// Terminal resize.
+    Resize(u16, u16),
+}
+
+/// Terminal event handler.
+#[allow(dead_code)]
+#[derive(Debug)]
+pub struct EventHandler {
+    /// Event sender channel.
+    sender: mpsc::Sender&LTEvent>,
+    /// Event receiver channel.
+    receiver: mpsc::Receiver&LTEvent>,
+    /// Event handler thread.
+    handler: thread::JoinHandle<()>,
+}
+
+impl EventHandler {
+    /// Constructs a new instance of [`EventHandler`].
+    pub fn new(tick_rate: u64) -> Self {
+        let tick_rate = Duration::from_millis(tick_rate);
+        let (sender, receiver) = mpsc::channel();
+        let handler = {
+            let sender = sender.clone();
+            thread::spawn(move || {
+                let mut last_tick = Instant::now();
+                loop {
+                    let timeout = tick_rate
+                        .checked_sub(last_tick.elapsed())
+                        .unwrap_or(tick_rate);
+
+                    if event::poll(timeout).expect("no events available") {
+                        match event::read().expect("unable to read event") {
+                            CrosstermEvent::Key(e) => sender.send(Event::Key(e)),
+                            CrosstermEvent::Mouse(e) => sender.send(Event::Mouse(e)),
+                            CrosstermEvent::Resize(w, h) => sender.send(Event::Resize(w, h)),
+                            _ => unimplemented!(),
+                        }
+                        .expect("failed to send terminal event")
+                    }
+
+                    if last_tick.elapsed() >= tick_rate {
+                        sender.send(Event::Tick).expect("failed to send tick event");
+                        last_tick = Instant::now();
+                    }
+                }
+            })
+        };
+        Self {
+            sender,
+            receiver,
+            handler,
+        }
+    }
+
+    /// Receive the next event from the handler thread.
+    ///
+    /// This function will always block the current thread if
+    /// there is no data available and it's possible for more data to be sent.
+    pub fn next(&self) -> AppResult&LTEvent> {
+        Ok(self.receiver.recv()?)
+    }
+}
+</code></pre><p>在这里, 我们定义了自己的 Event 枚举, 并且其变体包装了来自 crossterm 库的一些事件<br> 当我们使用 event::poll 来捕获事件时, 捕获的事件, 被封装成了我们自己定义的 Event 枚举, 方便传递给程序的其他部分进行处理<br> 这里使用了 mpsc-channel 来处理事件的发送与接受, 即多生产者与单消费者模型, 不熟悉的可以去看一下 rust 的官方教程<p>你会看见这样一份代码:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let timeout = tick_rate
+    .checked_sub(last_tick.elapsed())
+    .unwrap_or(tick_rate);
+</code></pre><p>tick_rate 代表了一个 tick 的具体时间, timeout 顾名思义代表了后面 event::poll 应该等待多久, 超时了自然就结束<br> checked_sub 表示了一个 tick_rate, 经历了 last_tick.elapsed() 之后还剩下的时间, 以此作为 timeout<br> 如果流逝的时间要比一个 tick 大, 这里选择了将一个 tick_rate 作为 timeout 来使用<h2 id=zhong-duan-she-zhi>终端设置</h2><p>呕吼, 你即将观看的代码, 其作用是设置与调整终端的环境, 以便我们的 tui 应用更好的运行, 接下来会逐步讲解相关概念<br> 代码如下:<figcaption>src/tui.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use crate::app::{App, AppResult};
+use crate::event::EventHandler;
+use crate::ui;
+use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
+use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
+use std::io;
+use std::panic;
+use ratatui::backend::Backend;
+use ratatui::Terminal;
+
+/// Representation of a terminal user interface.
+///
+/// It is responsible for setting up the terminal,
+/// initializing the interface and handling the draw events.
+#[derive(Debug)]
+pub struct Tui&LTB: Backend> {
+    /// Interface to the Terminal.
+    terminal: Terminal&LTB>,
+    /// Terminal event handler.
+    pub events: EventHandler,
+}
+
+impl&LTB: Backend> Tui&LTB> {
+    /// Constructs a new instance of [`Tui`].
+    pub fn new(terminal: Terminal&LTB>, events: EventHandler) -> Self {
+        Self { terminal, events }
+    }
+
+    /// Initializes the terminal interface.
+    ///
+    /// It enables the raw mode and sets terminal properties.
+    pub fn init(&mut self) -> AppResult<()> {
+        terminal::enable_raw_mode()?;
+        crossterm::execute!(io::stderr(), EnterAlternateScreen, EnableMouseCapture)?;
+
+        // Define a custom panic hook to reset the terminal properties.
+        // This way, you won't have your terminal messed up if an unexpected error happens.
+        let panic_hook = panic::take_hook();
+        panic::set_hook(Box::new(move |panic| {
+            Self::reset().expect("failed to reset the terminal");
+            panic_hook(panic);
+        }));
+
+        self.terminal.hide_cursor()?;
+        self.terminal.clear()?;
+        Ok(())
+    }
+
+    /// [`Draw`] the terminal interface by [`rendering`] the widgets.
+    ///
+    /// [`Draw`]: ratatui::Terminal::draw
+    /// [`rendering`]: crate::ui:render
+    pub fn draw(&mut self, app: &mut App) -> AppResult<()> {
+        self.terminal.draw(|frame| ui::render(app, frame))?;
+        Ok(())
+    }
+
+    /// Resets the terminal interface.
+    ///
+    /// This function is also used for the panic hook to revert
+    /// the terminal properties if unexpected errors occur.
+    fn reset() -> AppResult<()> {
+        terminal::disable_raw_mode()?;
+        crossterm::execute!(io::stderr(), LeaveAlternateScreen, DisableMouseCapture)?;
+        Ok(())
+    }
+
+    /// Exits the terminal interface.
+    ///
+    /// It disables the raw mode and reverts back the terminal properties.
+    pub fn exit(&mut self) -> AppResult<()> {
+        Self::reset()?;
+        self.terminal.show_cursor()?;
+        Ok(())
+    }
+}
+</code></pre><p>我们创建了一个叫做 <code>TUI</code> 的结构体, 它代表了你的 <code>terminal user interface</code><br> 其有两个成员, 一个代表你的终端, 一个代表了先前的 <code>EventHandler</code><p>你当然能直接使用 EventHandler, 而不是将其作为 <code>TUI</code> 的成员来使用, 只是这里仅仅作了一个抽象与包装而已<br> 毕竟, 在该模板项目中, EventHandler 仅仅出现了三次, 一次是其自己的定义, 一次是它作为 <code>TUI</code> 成员的定义<br> 还有一次是其在 main 中被创建, 然后传递给 <code>TUI</code> 用作初始化 (笑<p><code>init</code> 与 <code>exit</code> 分别对应了当该 tui 应用开始时的初始设置, 与结束时的清理收尾工作<p>这里大多顾名思义, 比如 AlternateScreen 表示 tui 应用的渲染应该发生在 "另一张新的画布上", 避免破坏原来的界面<br> 当你结束程序时, 退出了 "新画布", 你的渲染都是发生在 "新画布" 上, 自然不会影响原来<p>你会发现在 <code>init</code> 和 <code>exit/reset</code> 中, <code>crossterm::execute!</code> 是针对 <code>io::stderr()</code> 的, 为何不用 <code>io::stdout()</code> 呢?<br> 这是因为我们想在 <code>stderr</code> 中进行 ui 的渲染, 而程序的输出则放到 <code>stdout</code>, 这样有利于通过管道(pipeline), 让输出传递给其他程序<p>答案在下一章, 也就是 <a href=/posts/rust-tui/p3>p3</a><br> ~~> <a href=/posts/rust-tui/p3>传送门: p3-更多概念</a><p>有些人可能不太了解什么是 <code>raw_mode</code>, 什么是 <code>pipeline</code>, 分不清 <code>stdout</code> 与 <code>stderr</code>, 所以我会多说明下这些概念<hr><h1 id=geng-duo-gai-nian>更多概念</h1><p>在上一小节里, 我们接触了 原始模式(raw_mode), 管道(pipeline), 标准输出与标准错误(stdout && stderr)<br> 有些小伙伴可能对这些不是太清楚, 所以我多分了一章专门说明这些概念<p>~~> <a href=/posts/rust-tui/p3>传送门: p3-更多概念</a><p>如果你对这些概念不是很清楚的话, 那我非常非常推荐你阅读一下, 可以算是必读的东西了<br> 不过因为这些概念与本章的架构说明, 主题上并非太相关, 而且放一起的话篇幅有点大, 所以我就将它们分开了<hr><h1 id=jie-wei>结尾</h1><p>最后回到我们的 main 函数, 经过前面那么多的铺垫, 我相信你一定可以读懂下面的代码了吧?!<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>use std::io;
+use tui::backend::CrosstermBackend;
+use tui::Terminal;
+use tui_demo::app::{App, AppResult};
+use tui_demo::event::{Event, EventHandler};
+use tui_demo::handler::handle_key_events;
+use tui_demo::tui::Tui;
+
+fn main() -> AppResult<()> {
+    // Create an application.
+    let mut app = App::new();
+
+    // Initialize the terminal user interface.
+    let backend = CrosstermBackend::new(io::stderr());
+    let terminal = Terminal::new(backend)?;
+    let events = EventHandler::new(250);
+    let mut tui = Tui::new(terminal, events);
+    tui.init()?;
+
+    // Start the main loop.
+    while app.running {
+        // Render the user interface.
+        tui.draw(&mut app)?;
+        // Handle events.
+        match tui.events.next()? {
+            Event::Tick => app.tick(),
+            Event::Key(key_event) => handle_key_events(key_event, &mut app)?,
+            Event::Mouse(_) => {}
+            Event::Resize(_, _) => {}
+        }
+    }
+
+    // Exit the user interface.
+    tui.exit()?;
+    Ok(())
+}
+</code></pre><p>鉴于 ratatui 是个非常简单的库, 讲完它的架构之后, 其实就已经可以开始写项目了<br> 所以之后就稍微讲下用 ratatui 实现的小项目吧, 像是自定义组件, 处理用户输入等内容, 则会搭配着这些项目来说明<p>谢谢观看!<p>上一篇: <a href=/posts/rust-tui/p1>p1~> 系列说明</a><br> 下一篇: <a href=/posts/rust-tui/p3>p3~> 终端中的各种概念</a></div></div><div class=bottom-footer style=height:140vh><div class="flex flex-col text-center border-t-2 py-8" style=background-color:#3b3b3b><span> <i class="iconfont icon-aixin text-red-500 align-middle"> </i> <span class=opacity-70> Jedsek </span> </span></div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><div class=pl-4><span> 哈喽, 哈喽!!!! 这里应该算是一个几乎不算彩蛋的小彩蛋吧? 只有当你浏览具有 目录|TOC 的文章时, 此段才会渲染<br> 其实这里是特意留白出来的底部 footer, 保证了当你点击右侧的 目录|TOC 且是最后一个 anchor 时, 一定能高亮它 <br> <br> 你可以想象一下, 如果没有这段 footer, 那么点击锚点时, 当最后一段目录的内容只有几行字时 <br> 由于底部行数过少, 就只能高亮到上面的锚点啦! <br> <br> 毕竟我高亮目录的实现思路, 是获取当前滚动的Y偏移量, 与锚点对应的 h1/h2 在博客左侧主体的Y偏移量, 进行计算来判断高亮哪个~ <br> 简单来说, 当 (window.scrollY + 200) >= anchor.offsetTop 时, 就会选择这个anchor, 随后进行高亮 <br> <br> 你可以试试在浏览器中按 F12 打开开发者工具, ctrl-c 选择此处 class 名称为 "bottom-footer" 的 div, 然后删除该结点 <br> 然后按 F12 退出开发者工具, 随后点击右侧的 目录|TOC 中的结点, 当最后一个 anchor 的内容过少时, 锚点无法被高亮 <br> 当然, 当最后一个 anchor 的行数稍微多一些时, 照样能够高亮最后一个目录 <br> <br> 如果你发现有无法高亮的情况, 嗯......那应该不太可能呢, 诶嘿～ </span><br><br></div><br></div></div><div class="sidebar flex-col w-48" style=display:flex><script>var show_sidebar_at_startup=(()=>{const a=document.getElementsByClassName(`sidebar`)[0];if(/Mobi|Android|iPhone/i.test(navigator.userAgent)&&a.style.display==`flex`){a.style.display=`none`}});show_sidebar_at_startup()</script><div class="nav flex flex-col gap-2 pb-auto opacity-100 text-center p-2" style=background-color:#2e2e2e><a class="text-xl font-medium no-underline hover:scale-110 duration-300" href=/ style=background-color:#2e2e2e> Jedsek's blog </a><span class="text-sm italic" style=background-color:#2e2e2e> 与其浊富 | 宁比清贫 </span><a href=/about style=background-color:#2e2e2e> <img class="my-avatar p-2 duration-300 hover:scale-110 hover:rotate-12 hover:rounded-3xl hover:opacity-80" src=/images/avatar.webp style=background-color:#2e2e2e> </a><nav class="px-2 pt-1"><ul class="list-none pl-0" id=menu><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/> <i class="iconfont icon-home left"></i> <span class="iconfont mr-10">首页</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/about> <i class="iconfont icon-about left"></i> <span class="iconfont mr-10">关于</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/sayings> <i class="iconfont icon-yulu left"> </i> <span class="iconfont mr-10">语录</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/categories> <i class="iconfont icon-Z-fenleidaohang left"></i> <span class="iconfont mr-10">分类</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/novels> <i class="iconfont icon-config_s left"></i> <span class="iconfont mr-10">小说</span> </a></ul></nav></div><script></script><div class="sticky top-0"><aside class="toc flex flex-col border-t-2 px-2 py-1 my-2"><div class="text-center text-2xl">目录|TOC</div><ul class="list-none px-2 text-left"><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#mo-ban-xiang-mu>模板项目</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#jia-gou-shuo-ming>架构说明</a><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#zhuang-tai-guan-li>状态管理</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#chu-li-cheng-xu>处理程序</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#shi-tu-xuan-ran>视图渲染</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#shi-jian-bu-huo>事件捕获</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> └─<a class=text-sm href=#zhong-duan-she-zhi>终端设置</a></span><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#geng-duo-gai-nian>更多概念</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#jie-wei>结尾</a></ul></aside></div></div><div class="float-botton flex"><a class="float-botton-item no-underline" href=#> <i class="iconfont icon-arrowup"></i> </a><div class=float-bottton-seperator></div><div class="float-botton-item float-botton-toggle-sidebar" type=button><i class="iconfont icon-sidebar"></i></div></div></div><script src=/scripts/custom/ul.js></script><script src=/scripts/third_party/lightgallery.min.js></script><script src=/scripts/custom/fancybox.js></script><script src=/scripts/custom/codeblock.js></script><script src=/scripts/custom/sidebar.js></script><script src=/scripts/custom/toc.js></script><script>hljs.highlightAll();document.addEventListener(`pjax:complete`,()=>{hljs.highlightAll()})</script>

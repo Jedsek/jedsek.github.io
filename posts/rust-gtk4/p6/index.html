@@ -1,0 +1,124 @@
+<!doctype html><html class=scroll-smooth lang=zh-Hans><head><meta charset=utf-8><link crossorigin href=/manifest.json rel=manifest><script src=/scripts/custom/loadscript.js></script><link href=/styles/third_party/highlight.min.css rel=stylesheet><link href=/styles/third_party/highlight_themes/atom-one-dark.css rel=stylesheet><script src=/scripts/third_party/pjax.min.js></script><script src=/scripts/third_party/quicklink.umd.min.js></script><script src=/scripts/third_party/jquery.min.js></script><script src=/scripts/third_party/highlight/highlight.min.js></script><script src=/scripts/third_party/highlight/languages/rust.min.js></script><script src=/scripts/third_party/highlight/languages/nix.min.js></script><script src=/scripts/third_party/highlight/languages/haskell.min.js></script><script src=/scripts/third_party/highlight/languages/gleam.min.js></script><script src=/scripts/third_party/highlight/languages/scheme.min.js></script><link href=/iconfonts/iconfont.css rel=stylesheet><link href=/styles/custom/tailwind.css rel=stylesheet><link href=/styles/custom/style.css rel=stylesheet><script src=/scripts/custom/pjax.js></script><script src=/scripts/custom/pwa_install.js></script><script>document.documentElement.setAttribute(`data-theme`,`dark`)</script><script>if(navigator.serviceWorker!=null){navigator.serviceWorker.register(`/sw.js`).then((a=>{console.log(`Registered events at scope: `,a.scope)}))}</script><script>var GetCookie=(a=>{let e=0;var b=document.cookie.split(`;`);for(var c=e;c<b.length;c++){var d=b[c].split(`=`);if(a==d[e]){return unescape(d[1])}};return null});var SetCookie=((a,b)=>{document.cookie=a+ `=`+ escape(b)+ `; SameSite=None; Secure;`});var scrollback=(()=>{let a=`scroll`;if(GetCookie(a)!=null){const b=GetCookie(a);document.documentElement.scrollTo({top:b,left:0,behavior:`instant`})}})</script><script>window.addEventListener(`load`,()=>{quicklink.listen()})</script><script>loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}));document.addEventListener(`pjax:complete`,(()=>{loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}))}))</script><title> Jedsek | Blog </title><body onscroll='SetCookie("scroll",document.documentElement.scrollTop);' class=flex id=body onload=scrollback();><script src=/scripts/custom/fireworks.js></script><div class="flex flex-rol grow"><div class="content w-80 flex flex-col break-words pr-2 border-2 grow border-b-0 border-neutral-800 animate-in fade-in slide-in-from-top-8 duration-1000" style=background-color:#3b3b3b><div class=break-words style=min-height:100vh><div class="p-4 flex justify-center text-4xl" style=opacity:.84>rust-gtk4-p6~> GObject-属性</div><div class="p-4 flex align-center text-sm hover:scale-125 duration-300 w-fit" style=color:#999;margin-top:-16px;margin-left:auto;margin-right:auto><~~ 发表日期:2022-12-10 | 访问量: <span class=text-sm id=busuanzi_container_page_pv style=color:#999> <span class=text-sm id=busuanzi_value_page_pv style=color:#999></span></span> | 本文词数:1820 | 预计阅读时间:10分钟 ~~></div><div class=p-4><blockquote><p>本节将学习 GObject 的 property(属性), 探索其强大且灵活的运行时</blockquote><span id=continue-reading></span><p>同系列传送门: <a href=/categories/rust-gui>rust-gui</a><br> GNOME入坑指南: <a href=/posts/desktop-beautify/gnome>gnome</a><h1 id=shuo-ming>说明</h1><p>属性(Property), 让我们能够访问 GObject 的状态(state)<p>glib 虽然以面向过程的 C 为核心, 但却具有面向对象的思想, 属性自然是其中重要的一环<br> 通过库为我们提供的运行时, 我们得到了一个灵活的, 动态的运行时<p>得益于此, 我们可以在程序的运行过程中, 动态地修改其属性, 比如:<ul><li>动态注册某个新的属性<li>进行属性间的自动绑定<li>属性变更时将执行操作</ul><hr><h1 id=chang-gui-shi-yong>常规使用</h1><p>如下的代码是一个修改 <code>Switch</code> 部件的 <code>state</code> 属性, 并在下一行获取其值的例子:<br> (记得use一下相关的路径, 这里为了简略就没有写出来, 本节之后的代码也是同理)<figcaption>src/main.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn build_ui(app: &Application) {
+    // Create the switch
+    let switch = Switch::new();
+
+    // Set and then immediately obtain state
+    switch.set_state(true);
+    let current_state = switch.state();
+
+    // This prints: "The current state is true"
+    println!("The current state is {}", current_state);
+}
+</code></pre><p>我们还可以用 <code>general-property</code> 来设置与获取属性, 与上一节的<a href=/posts/rust-gtk4/p5>通用类型</a>相对应<br> 例子如下, 在获取属性时用 <code>turbofish</code> 语法来推导其类型:<figcaption>src/main.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn build_ui(app_&Application) {
+    // Create the switch
+    let switch = Switch::new();
+
+    // Set and then immediately obtain state
+    switch.set_property("state", &true);
+    let current_state = switch.property::&LTbool>("state");
+
+    // This prints: "The current state is true"
+    println!("The current state is {}", current_state);
+}
+</code></pre><p>如果属性不存在/类型不正确/属性不可写(无write权限)等, 都会导致 <code>property</code>/<code>set_property</code> 恐慌(panic), 在大部分如上的硬编码情况下是可行的<br> 同样的, 如果你想设置多个属性, 可以用 <code>properties</code>/<code>set_properties</code><p>现在已经不存在 <code>try_property</code>/<code>try_set_property</code>, 因为导致错误的情况, 只是仅为上一段所述的几种而已<br> 不过截止目前, 官方教程还没有更新, 我已经提交了一个pr<p>值得注意的是, 当你使用这种以字符串的方式来访问属性时, 需要遵循 <code>kebab-case(烤肉串式)</code>, 比如 <code>user-name</code>, <code>person-age</code><br> 在本节后面, 我们为自定义对象创建自定义属性时, 也需要遵循这种命名方式<hr><h1 id=shu-xing-bang-ding>属性绑定</h1><p>属性不仅可以通过 <code>getter</code>/<code>setter</code> 进行访问与修改, 还可以彼此进行绑定:<figcaption>src/main.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn build_ui(app: &Application) {
+    // Create the switches
+    let switch_1 = Switch::new();
+    let switch_2 = Switch::new();
+
+    switch_1
+        .bind_property("state", &switch_2, "state")
+        .flags(BindingFlags::BIDIRECTIONAL)
+        .build();
+}
+</code></pre><p><code>bi-directional</code> 的意思是 <code>双向</code>, 我们在这里进行了双向绑定, <code>switch_1</code> 的 <code>state</code> 已经与 <code>switch_2</code> 的 <code>state</code> 绑在了一起<br> 于是, 两个 <code>switch</code> 的 <code>state</code> 属性会一直保持一样, 修改其中一个, 另外一个也会被自动修改<p>如果你不添加任何 <code>BindingFlags</code>, 则为默认的 <code>BindingFlags::DEFAULT</code>, 作用是由源属性向目标属性进行更新<p>可以看下来自官方教程的动图, 当我们切换其中一个按钮的状态时, 另外一个会自动保持相同:</p><video autoplay=true id=video loop=true preload=auto><source id=webm src=/images/rust/gtk4/bidirectional_switches.webm type=video/webm></video><hr><h1 id=wei-zi-ding-yi-dui-xiang-tian-jia-shu-xing>为自定义对象添加属性</h1><p>我们还可以为 <code>CustomObject</code> 添加属性, 以 <a href=/posts/rust-gtk4/p4>p4</a> 中所讲述的 <code>CustomButton</code> 为例<br> (没印象的赶紧再去看看, 毕竟本篇p6是写完p4好久后才更新的...当然如果你是未来来的, 不是追着看的话, 问题也不大, 那时本系列应该写完了, 吧?)<p>我们为 <code>CustomButton</code> 实现 <code>ObjectImpl</code> 这个 trait, 覆写对应的虚函数:<figcaption>src/custom_button/imp.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>// Trait shared by all GObjects
+impl ObjectImpl for CustomButton {
+    fn properties() -> &'static [ParamSpec] {
+        static PROPERTIES: Lazy&LTVec&LTParamSpec>> =
+            Lazy::new(|| vec![ParamSpecInt::builder("number").build()]);
+        PROPERTIES.as_ref()
+    }
+    fn set_property(&self, _id: usize, value: &Value, pspec: &ParamSpec) {
+        match pspec.name() {
+            "number" => {
+                let input_number =
+                    value.get().expect("The value needs to be of type `i32`.");
+                self.number.replace(input_number);
+            }
+            _ => unimplemented!(),
+        }
+    }
+    fn property(&self, _id: usize, pspec: &ParamSpec) -> Value {
+        match pspec.name() {
+            "number" => self.number.get().to_value(),
+            _ => unimplemented!(),
+        }
+    }
+    fn constructed(&self) {
+        self.parent_constructed();
+
+        // Bind label to number
+        // `SYNC_CREATE` ensures that the label will be immediately set
+        let obj = self.obj();
+        obj.bind_property("number", obj.as_ref(), "label")
+            .flags(BindingFlags::SYNC_CREATE)
+            .build();
+    }
+}
+</code></pre><p>看见 <code>fn properties</code> 里面的 <code>Lazy</code> 没有? 这是为了延迟创建资源的过程<br> 每次访问都会检查是否已经创建了资源, 没有的话就调用闭包进行创建并访问, 不然就直接访问已经创建好的资源<br> 这样就能避免每一次调用 <code>properties</code> 时都需要重新创建资源了<p>当然, rust-analyzer 可能无法为你导入 <code>Lazy</code> 所在的路径, 因为它可能还没有进标准库<br> 在它进标准库之前, 可以使用 <code>once_cell</code> crate:<p>在项目的根目录执行:<pre class=language-bash data-lang=bash><code class=language-bash data-lang=bash>cargo add once_cell
+</code></pre><p>你会看见 <code>ParamSpec</code> 这样的类型, 其来自于 <code>glib</code>, 按照相应的 <a href=https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/struct.ParamSpec.html>文档</a> 所述, 是一个struct, 封装了指定参数所需的元数据<br> 如果将C语言的描述, 换成了看起来稍微轻松一些的rust版本, 它差不多长这样:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>struct ParamSpec<'a> {
+    name: &'a str,             // 属性的名称, 按照 `kebab-case`
+    flags: glib::ParamFlags,   // 比如读写权限
+    value_type: glib::Type,    // 属性对应值的类型
+    owner_type: glib::Type     // 属性所有者的类型
+    // more
+    // more
+}
+</code></pre><p>比如代码中出现的 <code>ParamSpecInt</code>, 就是基于 <code>ParamSpec</code> 的基础上, 指定了 <code>value_type</code><p>接下来讲 <code>fn constructed</code>:<br> 其中出现了 <code>BindingFlags::SYNC_CREATE</code>, 它的作用是, 当创建绑定时会进行一次同步, 方向是 form 源属性 to 目标属性, 作用类似于初始化<br> 而之前的 <code>BindingFlags::BIDIRECTIONAL</code> 则是当源或目标属性中的一个发生更改时, 才进行同步<p>更多的flags, 自己去看 <a href=https://gtk-rs.org/gtk-rs-core/stable/latest/docs/glib/struct.BindingFlags.html>文档</a><p>这几处讲完, 其外的代码就不讲了, 可以当作模板来使用<p>敏锐的小伙伴会注意到, <code>number</code> 与 <code>label</code>, 这两个属性的类型好像不相等吧?<br> 之前的 <a href=/posts/rust-gtk4/p4>p4</a> 里, 可不是这样写的, 没错, 属性与属性的绑定, 其值的类型并不一定要是同类型!<p>下面是对比, 两种写法实现了相同的功能, 将 <code>number</code> 字符串化之后, 当作按钮的 <code>label</code>:<figcaption>src/custom_button/imp.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl ObjectImpl for CustomButton {
+    // p4:
+    fn constructed(&self) {
+        self.parent_constructed();
+        self.obj().set_label(&self.number.get().to_string());
+    }
+
+    // p6:
+    fn constructed(&self) {
+        self.parent_constructed();
+
+        let obj = self.obj();
+        obj.bind_property("number", obj.as_ref(), "label")
+            .flags(BindingFlags::SYNC_CREATE)
+            .build();
+}
+</code></pre><ul><li><p>前一种写法中:<br> 你需要自己手动 <code>get</code> 内部值, 手动字符串化, 然后当作参数赋给 <code>set_label</code><br> 其实这没什么大不了, 关键是你每一次修改 <code>number</code>, 都必须记得要同时修改 <code>label</code>, 进行重复性的工作</p><li><p>后一种写法中:<br> 通过绑定属性, 类型间的转化自动进行, 而且写法上更加清晰易懂 (<code>SYNC_CREATE</code> 显式地声明了目的)<br> 于此同时, 当你修改 <code>number</code> 属性的值时, <code>label</code> 会自动适应, 你只需关注 <code>number</code> 即可</p></ul><p>让我们继续, 接下来重载按钮被点击时的行为:<figcaption>src/custom_button/imp.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>// Trait shared by all buttons
+impl ButtonImpl for CustomButton {
+    fn clicked(&self) {
+        let number_inc = self.number.get() + 1;
+        self.obj().set_property("number", &number_inc);
+    }
+}
+</code></pre><p>瞧, 得益于属性绑定, 你只需修改 <code>number</code> 属性的值即可, 不必再重复地添加令人生厌的模板代码, 去手动修改 <code>label</code> 了<hr><h1 id=kong-zhi-shu-xing-bang-ding-de-fang-xiang>控制属性绑定的方向</h1><p>接下来, 我们来完成这样一件事: 创建两个按钮, btn_1 初始为零, btn_2 始终比 btn_1 高一, 某个按钮被点击后, 其数值加一<br> 其效果如动图所示:</p><video autoplay=true id=video loop=true preload=auto><source id=webm src=/images/rust/gtk4/transform_buttons.webm type=video/webm></video><p>这两个按钮的 <code>number</code> 属性, 互相之间存在关联, 你可能会想到属性绑定, 没错, 不过相较于之间 <code>number</code> to <code>label</code> 的例子, 此处粒度会更细:<br> 直接看代码:<figcaption>src/main.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn build_ui(app: &Application) {
+    // Create the buttons
+    let btn_1 = Custombtn::new();
+    let btn_2 = Custombtn::new();
+
+    // Assure that "number" of `btn_2` is always 1 higher than "number" of `btn_1`
+    btn_1
+        .bind_property("number", &btn_2, "number")
+        // How to transform "number" from `btn_1` to "number" of `btn_2`
+        .transform_to(|_, number: i32| {
+            let incremented_number = number + 1;
+            Some(incremented_number.to_value())
+        })
+        // How to transform "number" from `btn_2` to "number" of `btn_1`
+        .transform_from(|_, number: i32| {
+            let decremented_number = number - 1;
+            Some(decremented_number.to_value())
+        })
+        .flags(BindingFlags::BIDIRECTIONAL | BindingFlags::SYNC_CREATE)
+        .build();
+}
+</code></pre><p>代码很好理解, <code>transform_to</code> 定义了从源属性到目标属性的动作, <code>transform_from</code> 则是方向相反<p>同时, <code>BIDIRECTIONAL | SYNC_CREATE</code> 则分别声明了双向与初始化:<ul><li>双向: 由于 <code>BIDIRECTIONAL</code>, 其中一个发生被click, 数值发生改变后会按照对应方向对应的闭包, 更新另一个<li>初始化: 立刻进行一次更新, 方向是to</ul><hr><h1 id=shu-xing-geng-gai-shi-jian>属性更改事件</h1><p>你可以在属性发生更改时, 执行一个闭包, 比如:<figcaption>src/main.rs</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>    btn_1.connect_notify_local(Some("number"), move |btn, _| {
+        let number = btn.property::&LTi32>("number");
+        println!("The current number of `btn_1` is {}.", number);
+    });
+</code></pre><p>当 <code>number</code> 属性的值发生更改后, 会在标准输出中, 打印按钮当前显示的数值<hr><p>上一篇: <a href=/posts/rust-gtk4/p5>p5~> GObject-通用属性</a><br> 下一篇: <a href=/posts/rust-gtk4/p7>p7~> GObject-信号</a></div></div><div class=bottom-footer style=height:140vh><div class="flex flex-col text-center border-t-2 py-8" style=background-color:#3b3b3b><span> <i class="iconfont icon-aixin text-red-500 align-middle"> </i> <span class=opacity-70> Jedsek </span> </span></div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><div class=pl-4><span> 哈喽, 哈喽!!!! 这里应该算是一个几乎不算彩蛋的小彩蛋吧? 只有当你浏览具有 目录|TOC 的文章时, 此段才会渲染<br> 其实这里是特意留白出来的底部 footer, 保证了当你点击右侧的 目录|TOC 且是最后一个 anchor 时, 一定能高亮它 <br> <br> 你可以想象一下, 如果没有这段 footer, 那么点击锚点时, 当最后一段目录的内容只有几行字时 <br> 由于底部行数过少, 就只能高亮到上面的锚点啦! <br> <br> 毕竟我高亮目录的实现思路, 是获取当前滚动的Y偏移量, 与锚点对应的 h1/h2 在博客左侧主体的Y偏移量, 进行计算来判断高亮哪个~ <br> 简单来说, 当 (window.scrollY + 200) >= anchor.offsetTop 时, 就会选择这个anchor, 随后进行高亮 <br> <br> 你可以试试在浏览器中按 F12 打开开发者工具, ctrl-c 选择此处 class 名称为 "bottom-footer" 的 div, 然后删除该结点 <br> 然后按 F12 退出开发者工具, 随后点击右侧的 目录|TOC 中的结点, 当最后一个 anchor 的内容过少时, 锚点无法被高亮 <br> 当然, 当最后一个 anchor 的行数稍微多一些时, 照样能够高亮最后一个目录 <br> <br> 如果你发现有无法高亮的情况, 嗯......那应该不太可能呢, 诶嘿～ </span><br><br></div><br></div></div><div class="sidebar flex-col w-48" style=display:flex><script>var show_sidebar_at_startup=(()=>{const a=document.getElementsByClassName(`sidebar`)[0];if(/Mobi|Android|iPhone/i.test(navigator.userAgent)&&a.style.display==`flex`){a.style.display=`none`}});show_sidebar_at_startup()</script><div class="nav flex flex-col gap-2 pb-auto opacity-100 text-center p-2" style=background-color:#2e2e2e><a class="text-xl font-medium no-underline hover:scale-110 duration-300" href=/ style=background-color:#2e2e2e> Jedsek's blog </a><span class="text-sm italic" style=background-color:#2e2e2e> 与其浊富 | 宁比清贫 </span><a href=/about style=background-color:#2e2e2e> <img class="my-avatar p-2 duration-300 hover:scale-110 hover:rotate-12 hover:rounded-3xl hover:opacity-80" src=/images/avatar.webp style=background-color:#2e2e2e> </a><nav class="px-2 pt-1"><ul class="list-none pl-0" id=menu><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/> <i class="iconfont icon-home left"></i> <span class="iconfont mr-10">首页</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/about> <i class="iconfont icon-about left"></i> <span class="iconfont mr-10">关于</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/sayings> <i class="iconfont icon-yulu left"> </i> <span class="iconfont mr-10">语录</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/categories> <i class="iconfont icon-Z-fenleidaohang left"></i> <span class="iconfont mr-10">分类</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/novels> <i class="iconfont icon-config_s left"></i> <span class="iconfont mr-10">小说</span> </a></ul></nav></div><script></script><div class="sticky top-0"><aside class="toc flex flex-col border-t-2 px-2 py-1 my-2"><div class="text-center text-2xl">目录|TOC</div><ul class="list-none px-2 text-left"><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#shuo-ming>说明</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#chang-gui-shi-yong>常规使用</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#shu-xing-bang-ding>属性绑定</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#wei-zi-ding-yi-dui-xiang-tian-jia-shu-xing>为自定义对象添加属性</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#kong-zhi-shu-xing-bang-ding-de-fang-xiang>控制属性绑定的方向</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#shu-xing-geng-gai-shi-jian>属性更改事件</a></ul></aside></div></div><div class="float-botton flex"><a class="float-botton-item no-underline" href=#> <i class="iconfont icon-arrowup"></i> </a><div class=float-bottton-seperator></div><div class="float-botton-item float-botton-toggle-sidebar" type=button><i class="iconfont icon-sidebar"></i></div></div></div><script src=/scripts/custom/ul.js></script><script src=/scripts/third_party/lightgallery.min.js></script><script src=/scripts/custom/fancybox.js></script><script src=/scripts/custom/codeblock.js></script><script src=/scripts/custom/sidebar.js></script><script src=/scripts/custom/toc.js></script><script>hljs.highlightAll();document.addEventListener(`pjax:complete`,()=>{hljs.highlightAll()})</script>

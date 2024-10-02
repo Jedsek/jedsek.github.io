@@ -1,0 +1,308 @@
+<!doctype html><html class=scroll-smooth lang=zh-Hans><head><meta charset=utf-8><link crossorigin href=/manifest.json rel=manifest><script src=/scripts/custom/loadscript.js></script><link href=/styles/third_party/highlight.min.css rel=stylesheet><link href=/styles/third_party/highlight_themes/atom-one-dark.css rel=stylesheet><script src=/scripts/third_party/pjax.min.js></script><script src=/scripts/third_party/quicklink.umd.min.js></script><script src=/scripts/third_party/jquery.min.js></script><script src=/scripts/third_party/highlight/highlight.min.js></script><script src=/scripts/third_party/highlight/languages/rust.min.js></script><script src=/scripts/third_party/highlight/languages/nix.min.js></script><script src=/scripts/third_party/highlight/languages/haskell.min.js></script><script src=/scripts/third_party/highlight/languages/gleam.min.js></script><script src=/scripts/third_party/highlight/languages/scheme.min.js></script><link href=/iconfonts/iconfont.css rel=stylesheet><link href=/styles/custom/tailwind.css rel=stylesheet><link href=/styles/custom/style.css rel=stylesheet><script src=/scripts/custom/pjax.js></script><script src=/scripts/custom/pwa_install.js></script><script>document.documentElement.setAttribute(`data-theme`,`dark`)</script><script>if(navigator.serviceWorker!=null){navigator.serviceWorker.register(`/sw.js`).then((a=>{console.log(`Registered events at scope: `,a.scope)}))}</script><script>var GetCookie=(a=>{let e=0;var b=document.cookie.split(`;`);for(var c=e;c<b.length;c++){var d=b[c].split(`=`);if(a==d[e]){return unescape(d[1])}};return null});var SetCookie=((a,b)=>{document.cookie=a+ `=`+ escape(b)+ `; SameSite=None; Secure;`});var scrollback=(()=>{let a=`scroll`;if(GetCookie(a)!=null){const b=GetCookie(a);document.documentElement.scrollTo({top:b,left:0,behavior:`instant`})}})</script><script>window.addEventListener(`load`,()=>{quicklink.listen()})</script><script>loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}));document.addEventListener(`pjax:complete`,(()=>{loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}))}))</script><title> Jedsek | Blog </title><body onscroll='SetCookie("scroll",document.documentElement.scrollTop);' class=flex id=body onload=scrollback();><script src=/scripts/custom/fireworks.js></script><div class="flex flex-rol grow"><div class="content w-80 flex flex-col break-words pr-2 border-2 grow border-b-0 border-neutral-800 animate-in fade-in slide-in-from-top-8 duration-1000" style=background-color:#3b3b3b><div class=break-words style=min-height:100vh><div class="p-4 flex justify-center text-4xl" style=opacity:.84>rust-typed-magic: 泛型关联类型(GATs)</div><div class="p-4 flex align-center text-sm hover:scale-125 duration-300 w-fit" style=color:#999;margin-top:-16px;margin-left:auto;margin-right:auto><~~ 发表日期:2024-04-24 | 访问量: <span class=text-sm id=busuanzi_container_page_pv style=color:#999> <span class=text-sm id=busuanzi_value_page_pv style=color:#999></span></span> | 本文词数:5014 | 预计阅读时间:26分钟 ~~></div><div class=p-4><blockquote><p>rust 中的 gat(泛型关联类型), HKT(高阶类型), type-constructor(类型构造器) 等概念</blockquote><span id=continue-reading></span><h1 id=guan-lian-lei-xing>关联类型</h1><p><code>关联类型(associated-type)</code> 非常的常见 <del>(我感觉没啥好多说的, 但还是说一嘴吧)</del><h2 id=ding-yi>定义</h2><p>让我们以标准库中的 <a href=https://doc.rust-lang.org/std/ops/trait.Add.html>Add</a> 为例:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait Add&LTRhs = Self> {
+    type Output;
+
+    fn add(self, rhs: Rhs) -> Self::Output;
+}
+</code></pre><p>该定义中的 <code>Output</code> 便是所谓的 <code>关联类型(associated-type)</code>, 而 <code>Rhs</code> 则是普通的泛型, 默认值是 <code>Self</code><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl Add for i32 {
+    type Output = i32;
+
+    fn add(self, other: i32) -> $t { self + other }
+}
+</code></pre><p>我们在实现中指定 <code>Output</code> 的类型, 而 <code>Rhs</code> 也已经推导为 <code>i32</code><p>关联类型的出现是必要的, 在这里, 我们需要先澄清一下 trait 的 输入类型(input) 与 输出类型(output)<h2 id=shu-ru-yu-shu-chu>输入与输出</h2><ul><li>input: <code>Add</code> 中的泛型参数 <code>Rhs</code><li>output: <code>Add</code> 中的关联类型 <code>Output</code></ul><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl Add&LTi32> for i32 { ... }
+impl Add&LTComplex> for i32 { ... }
+</code></pre><p>考虑这两种 impl, <code>Add&LTi32></code> 与 <code>Add&LTComplex></code> 被视作两个不一样的 trait<br> 作为类型参数的 <code>i32</code> 与 <code>Complex</code> 都是该 trait 的输入, 通过输入, 才最终确定并形成了这两个不同的 trait<p>但对于关联类型, 它是某个已经确定了的 trait 的输出, 因此它只可能在 impl 的时候由实现者确定, 不参与 trait 的类型推断<p>倘若没有关联类型, 我们只能全部写进泛型中当作参数:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl Add&LTi32, i32> for i32 { ... }
+impl Add&LTComplex, Complex> for i32 { ... }
+</code></pre><p>以第一个 impl 为例子, 第一个 i32 代表 <code>Rhs</code>, 第二个 i32 代表 <code>Output</code>, 但现在你还分得清 input 与 output 吗?<br> 不仅如此, 原本不该参与 <code>通过泛型列表确认是哪个trait</code> 这一推导过程, 而应由实现者在 impl 内部指定的 <code>Output</code>, 此刻却暴露了出来<h2 id=gong-cheng-xue-you-dian>工程学优点</h2><p>你可能还是有点懵, 那就再以 <a href=https://rust-lang.github.io/rfcs/0195-associated-items.html#associated-types-engineering-benefits-for-generics>rfc-0195</a> 中的代码为例子 (有些地方和真代码不一样, 看得懂即可):<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait Graph&LTN, E> {
+    fn has_edge(&self, &N, &N) -> bool;
+    ...
+}
+
+fn distance&LTN, E, G: Graph&LTN, E>>(graph: &G, start: &N, end: &N) -> uint { ... }
+</code></pre><p>我们有一个 <code>Graph</code> trait, 来表示图论算法中的图, 涉及 3 种类型: 节点(Node), 边(Edge), 图(Graph)本身<br> 如果我们定义了这样的 trait 并为某个具体的类型实现, 按理来说 节点(N) 与 边(E) 也是与该具体类型相关联的具体类型<br> 但暴露给用户的却是必须强制写出来后才能使用的泛型参数, 这一点相当令人困惑<p>但倘若用关联类型改写:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait Graph {
+    type N;
+    type E;
+    fn has_edge(&self, &N, &N) -> bool;
+}
+
+fn distance&LTG: Graph>(graph: &G, start: &G::N, end: &G::N) -> uint { ... }
+</code></pre><p>下游的用户在使用时不再需要被强迫写成泛型, 需要引用 Node 与 Edge 代表的具体类型时, 直接通过 <code>G::N/G::E</code> 来使用即可<p>这在工程学上有着相当大的优势, 而且是单纯的泛型绝对替代不了的 (我直接翻译 <a href=https://rust-lang.github.io/rfcs/0195-associated-items.html#associated-types-engineering-benefits-for-generics>rfc-0195</a> 中的原文了):<ul><li><p><code>可读性/可扩展性</code>:<br> 关联类型可以一次抽象出整个类型系列，而不必单独命名每个类型, 这提高了泛型代码的可读性 (如上面的 distance 函数)<br> 它还使泛型更具 “可扩展性”: trait 可以包含其他关联类型, 而不会给 "不关心这些类型的客户端" 带来额外的负担<br> 相比之下, 在今天的 rust 中，为一个 trait 添加额外的泛型参数, 通常感觉是个非常 “重量级” 的举动</p><li><p><code>易于重构/演进</code>:<br> 由于 trait 的用户不必单独对其关联类型进行泛型参数化, 因此可在不破坏现有客户端代码的情况下, 添加新的关联类型<br> (泛型的话, 你每次添加新的代码, 用户也得给每个函数都加上新的泛型参数啦!! 想想刚刚的 <code>distance</code>, 这会破坏所有涉及该 trait 的代码)</p></ul><hr><h1 id=fan-xing-guan-lian-lei-xing>泛型关联类型</h1><p>关联类型允许泛型, 就是所谓的泛型关联类型啦! <del>(废话!)</del><br> <del>(但是这玩意儿让 rust 团队写了七年, 期间重构数次编译器与类型分析系统)</del><p>现在要介绍的, 是 rust 自 1.65 版本后引入的重大特性, 泛型关联类型(GAT/GATs, Generic-Associated-Types)<br> 这是个相当重量级的特性, rust 团队为了支持这个特性, 写了整整将近 7 年, 诞生了诸如 <a href=https://github.com/rust-lang/chalk>chalk</a> 等项目<p><del>(没错, 将近 7 年, 确切来说是 6.5 年, 而且至今仍在完善)</del><p>但现在(1.79)版本下, gat 仍然有相当多的不完善之处, 对其支持仅仅是最小化支持, 且带有相当多限制<br> 但即使如此, 也已经相当够用了<p>顾名思义, 泛型关联类型, 也就是在关联类型的基础上添加了泛型, 仍然是关联类型的一种:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait Container {
+    type Value&LTT>;  // Here
+}
+</code></pre><p>是的, 你没有看错, 仅仅是使得关联类型的位置能够支持泛型了<br> 但这却解决了非常非常多的问题, 让 rust 能模拟一个非常重要的语法特性: <code>HKT(高阶类型, Higher-Kinded-Type)</code><p>GATs 让我们拥有了使用 <code>type-constructor(类型构造器)</code> 的能力<hr><h1 id=type-kind>Type && Kind</h1><p>那么什么是 <code>type-constructor</code> 呢? 介绍它之前, 先让我们了解一下 <code>type(类型)</code> 与 <code>kind(阶)</code> 的概念<br> 比如这么一个函数:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn not(x: bool) -> bool {
+    !x
+}
+</code></pre><ul><li><code>not</code> 函数接收一个 type 为 bool 的参数, 返回一个 type 为 bool 的值, 因此 <code>not</code> 的 type 就是 <code>bool -> bool</code><li><code>x</code> 这个参数的 type 则是 <code>bool</code></ul><p>type 表示 <code>数值的类型</code>, 那么什么是 kind 呢? 其实这也是较好理解的, 是基于 <code>type</code> 再往上抽象了一层的产物:<table><thead><tr><th style=text-align:left>name<th style=text-align:left>type<th style=text-align:left>kind<tbody><tr><td style=text-align:left><code>not</code><td style=text-align:left>bool -> bool<td style=text-align:left>*<tr><td style=text-align:left><code>x</code><td style=text-align:left>bool<td style=text-align:left>*</table><p>不管是 <code>bool</code> 还是 <code>bool -> bool</code>, 两者的类型都是一个已经非常具体的类型, 其 <code>kind</code> 则是 <code>*</code><br> 为了便于理解, 姑且称呼这些类型为 <code>具体类型</code> (你也可以将它们叫作 <code>full-type</code>, <code>actual-type</code>, <code>standalone-type</code>)<br> 这些类型都是很具体的, 其 <code>kind</code> 是相同的 <code>*</code><p>(当我们站在 kind 这个抽象层上看待 type 时, 应该使用 <code>type</code> 指代具体的 <code>i32</code>, <code>bool</code>, <code>i32 -> i32</code>, 它们都是 <code>type</code>)<br> (其实站在 type 这个抽象层看待 value 时, 也是一样的道理)<p><strong>一句话, type 用来抽象 value, kind 用于抽象 type</strong><br> 倘若你要问 <code>true</code> 的 kind 是 <code>*</code> 吗? 那不对, 你得说 <code>bool</code> 的 kind 是 <code>*</code> 才对<p>你可能要说了:<br> 什么鬼啊, 照你这么说岂不是所有的类型都是 <code>*</code> 了, 比如 <code>i32</code>, <code>fn(i32) -> i32</code>, <code>Vec&LTT></code>, <code>Result&LTT, E></code>......<br> 这些类型都是具体类型, 其 kind 难道不都是 <code>*</code> 吗?<p>没错, 在 rust 中的 <code>Vec&LTT></code>, <code>Option&LTT></code>, 它们都是一层的 <code>type</code>, 即其 kind 是 <code>*</code><br> 但如果是 <code>Vec</code> 而不是 <code>Vec&LTT></code> 呢? 假设这也是某种类型<p>你会发现, 你必须提供一个类型 (比如 <code>Vec&LTi32></code> 就是向 <code>Vec</code> 提供了 <code>i32</code> 作为参数), 才能构造出最终的具体类型<br> 对于这种特殊类型来说, 其 kind 就是 <code>* -> *</code> 了<table><thead><tr><th style=text-align:left>type<th style=text-align:left>kind<tbody><tr><td style=text-align:left><code>Vec&LTi32></code><td style=text-align:left>*<tr><td style=text-align:left><code>Vec&LT?></code><td style=text-align:left>* -> *<tr><td style=text-align:left><code>Option&LTi32></code><td style=text-align:left>*<tr><td style=text-align:left><code>Option&LT?></code><td style=text-align:left>* -> *<tr><td style=text-align:left><code>Result&LTString, Error></code><td style=text-align:left>*<tr><td style=text-align:left><code>Result&LTString, ?></code><td style=text-align:left>* -> *<tr><td style=text-align:left><code>Result&LT?, ?></code><td style=text-align:left>* -> * -> *</table><p>(<code>Vec&LT?></code> 就表示前文的 <code>Vec</code>, 需要向其中提供一个参数)<br> <del>(其实当你看到这里, 类型构造器的概念也已经差不多了解了)</del><hr><h1 id=lei-xing-gou-zao-qi>类型构造器</h1><p><del>(虽然前面已经讲了, 但这里还是写点具体的rust代码吧?)</del><p>如下代码中的 <code>Trait::Type</code> 便如同前文的 <code>not</code> 函数, 不过 not 是参数接收一个值, 并返回一个值, 其参数是 <code>type</code> 为 <code>bool</code> 的 <code>value</code><br> 而此时的 <code>Trait::Type</code> 却是接收一个类型, 并返回一个新类型, 即参数是 <code>kind</code> 为 <code>*</code> 的 <code>type</code>, 返回值是个新的 type<br> 像这样接收 type, 以 type 作为参数并创建新的 type 的玩意儿, 我们将其称为 <code>类型构造器</code><p>因此, <code>Trait::Type</code> 的 kind 可以表示为 <code>* -> *</code><br> (或者 <code>type -> type</code>, 都表达了只在乎 <code>阶</code>, 就像是不管是 true 还是 false, 都可以用 <code>bool</code> 来表示, 表达了只在乎 <code>类型</code>)<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait Trait {
+    type Type&LTT>;
+}
+</code></pre><p>我们可以通过将类型作为 <code>Type&LTT></code> 中的泛型参数 <code>T</code> 传入, 然后在 <code>impl</code> 块里面指定新的类型, 比如如下我们指定了类型构造器是 <code>X -> Option&LTX></code><br> 在使用时, 我们只需要给类型构造器传入一个类型, 比如 <code>i32</code> 后就能得到 <code>Option&LTi32></code> 了<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait Trait {
+    type Type&LTT>;
+}
+
+impl Trait for () {
+    type Type&LTX> = Option&LTX>;
+}
+
+fn main() {
+    let a = <() as Trait>::Type::&LTi32>::default();  // Option::&LTi32>::default()
+}
+</code></pre><p>GATs 其实就是让 "关联类型" 允许成为 "类型构造器"<br> 之前这玩意也被叫作 <code>ACT(Associated-Type-Constructors, 关联类型构造器)</code>, 差不多的意思, 无须在意<hr><h1 id=gao-jie-lei-xing-hkt>高阶类型(HKT)</h1><p>你可能听到过许多次 <code>高阶类型(Higher-Kinded-Type, HKT)</code> 的名字, 其实这与 <code>高阶函数(Higner-Ordered-Function, HOF)</code> 是一个道理:<ul><li><code>高阶函数(HOF)</code> 指某种参数可以是 函数与变量 的 函数<li><code>高阶类型(HKT)</code> 指某种参数可以是 类型构造器与类型 的 类型构造器</ul><p>当然, 就像是 <code>HOF(高阶函数)</code> 不仅可以接收 函数 作为参数, 也可以如同 普通的函数 那样接收 变量 作为参数<br> <code>HKT(高阶类型)</code> 也一样, 不仅可以接收 类型构造器 作为参数, 也可以如同 普通的类型构造器 那样接收 类型 作为参数<p>继续类比进行理解, 对于高阶函数来讲, 什么 <code>map</code>, <code>foreach</code> 之类的函数你肯定已经用过了, 这些函数都需要你手动传入闭包<br> 换句话说, <code>这赋予了让用户选择怎么做的权利</code>, 你传入 <code>map</code> 里面的闭包可以是让数组全部加 10, 可以是全部变成 0<p><code>高阶类型(HKT)</code> 也是一样的道理, 比如我们在设计某个容器类型时:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>// 一个包装容器的类型
+// 伪代码中的 `C[_]` 表示一个类型构造器
+struct Container&LTC[_] {
+    data: C&LTi32>
+    // ...
+    // ...
+}
+
+Container&LTVec>
+Container&LTLinkedList>
+</code></pre><p>你可以用 <code>Container&LTVec></code> 或者 <code>Container&LTLinkedList></code> 让用户决定该以何种形式去存储数据<br> 但很可惜的是, 前文也说过 rust 中并不存在 HKT, 仅仅只有 <code>Vec&LTi32></code>/<code>LinkedList&LTi32></code> 这些具体类型, 只能通过 GATs 去模拟<br> <code>HKT</code> 就是类似这样的类型, 只是它提供了根据传入的类型构造器(或者类型), 构造某个新类型的能力<p>再多举一点类似的例子, 比如下面这段伪代码, 来自于 <a href=https://docs.rs/lending-iterator/latest/lending_iterator/>lending_iterator</a> 中对 <code>HKT</code> 的说明:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>// ArrayKind 是一个类型构造器
+struct Container&LTArrayKind[_]> {
+    array_i32s: ArrayKind&LTi32>,
+    array_strings: ArrayKind&LTString>,
+}
+
+
+type StructOfVecs = Container&LTVec>;
+// Equals to
+struct StructOfVecs {
+    array_i32s: Vec&LTi32>,
+    array_strings: Vec&LTString>,
+}
+
+
+type StructOfVecDeques = Container&LTLinkedList>;
+// Equals to
+struct StructOfVecDeques {
+    array_i32s: LinkedList&LTi32>,
+    array_strings: LinkedList&LTString>,
+}
+</code></pre><p>我们甚至可以更加灵活一点, 通过临时构造一个类型, 来取代上面作为参数的 <code>Vec</code> 与 <code>LinkedList</code>:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>// 假设 `HKT!` 是一个魔法宏, 人为临时地构造了一个 `类型构造器`, 如同向 `map` 函数传入闭包一样
+type StructOfPairs = StructOfArrays< HKT!(T => [T; 2]) >;
+// Equals to
+struct StructOfPairs {
+    array_i32s: [i32; 2],
+    array_strings: [String; 2],
+}
+</code></pre><p>当然, rust 中并没有这种语法, 在 rust 中存在的是 <code>Vec&LTi32></code>, <code>LinkedList&LTi32></code> 这样的具体类型<br> <strong>但是</strong>, rust 中存在 GATs, 也就是上一节中介绍的那个泛型关联类型哩 :)<hr><h1 id=yi-xie-li-zi>一些例子</h1><p>来点小例子吧, 随便瞎扯一些, 想到了啥就扯点啥~~~~<h2 id=rong-qi-lei-xing>容器类型</h2><p>我将如何抽象某个容器类型放到第一个地方讲, 因为这部分比较经典与有趣 <del>(其实是因为比较简单啦, 太难直接把读者劝退了咋办)</del><br> 得益于 rust 中 GATs 的存在, 我们可以如上面的伪代码中那样抽象容器类型:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait Collection&LTT> {
+    type Iter<'iter>: Iterator&LTItem = &'iter T>
+    where
+        Self: 'iter,  // 此行的添加是由于 https://github.com/rust-lang/rust/issues/87479 中的限制
+        T: 'iter;     // T 的生命周期需要 比 'iter 更久才能借用
+
+    fn empty() -> Self;
+    fn add(&mut self, value: T);
+
+    // fn iterate(&'iter self) -> Self::Iter<'iter>;
+    fn iterate(&self) -> Self::Iter<'_>;
+}
+</code></pre><p>在 <code>iterate</code> 方法中, 我们返回了集合迭代时的具体类型, 但因为不同集合类型的迭代器具体类型是不一样的, 所以我们需要进行抽象:<ul><li><code>Vec&LTT></code> 对应的迭代器具体类型 <code>std::slice::Iter<'a, T></code><li><code>LinkedList&LTT></code> 对应的迭代器具体类型是 <code>std::collections::linked_list::Iter<'a, T></code></ul><p>因此我们可以通过 GATs 来表述, 无非就是多了个生命周期 (生命周期也是泛型的一种), 然后为各种集合类型实现该 trait:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>// Vec
+impl&LTT> Collection&LTT> for Vec&LTT> {
+    type Iter<'iter> = std::slice::Iter<'iter, T> 
+    where
+        T: 'iter;
+
+    fn empty() -> Self {
+        vec![]
+    }
+
+    fn add(&mut self, value: T) {
+        self.push(value);
+    }
+
+    fn iterate(&self) -> Self::Iter<'_> {
+        self.iter()
+    }
+}
+
+// LinkedList
+impl&LTT> Collection&LTT> for LinkedList&LTT> {
+    type Iter<'iter> = std::collections::linked_list::Iter<'iter, T>
+    where
+        T: 'iter;
+
+    fn empty() -> Self {
+        LinkedList::new()
+    }
+
+    fn add(&mut self, value: T) {
+        self.push_back(value);
+    }
+
+    fn iterate(&self) -> Self::Iter<'_> {
+        self.iter()
+    }
+}
+</code></pre><p>以 trait 为基调的实现比较符合 rust 常见的编码风格<br> 你可以把你脑子里那些什么 HKT, GATs 等名词, 类型构造器, kind与type 等概念全删掉, 然后仅简单将上述代码看作关联类型<br> <del>(这也是语言特性的开发团队为了一致性与兼容性所深思熟虑过的事情捏)</del><p>然后我们可以拥有像这样的方法, 比如让元素是整数类型的集合转换为浮点数的集合:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>fn floatify&LTInput, Output>(ints: &Input) -> Output
+where 
+    Input: Collection&LTi32>,
+    Output: Collection&LTf32>
+{
+    let mut floats = Output::empty();
+    for &i in ints.iterate() {
+        floats.add(i as f32);
+    }
+    floats
+}
+
+fn main() {
+    let v = vec![1, 2, 3];
+    let v: Vec<_> = floatify(&v);
+
+    let l = LinkedList::from_iter([4, 5, 6]);
+    let l: LinkedList<_> = floatify(&l);
+}
+</code></pre><p>同时需要注意类型推断, 这让迭代器被 <code>collect</code> 成某个具体的集合类型时同理, 毕竟有许多实现了 <code>Collection&LTf32></code>, 编译器怎么知道是哪个呢?<br> 我们希望不会改变集合的类型, 仅改变集合元素的类型, 但当故意手动添加不同集合的类型作为注解时, 能导致集合的类型改变:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let l = LinkedList::from_iter([4, 5, 6]);
+let l: Vec<_> = floatify(&l);
+</code></pre><p>这是因为 rust 通过我们提供的类型推导出了 <code>Output</code> 类型, 而 <code>Input</code> 的类型则是根据我们传入的参数, 已经固定推导出来了<br> 有没有什么办法从类型的关系上, 让 rust 不必通过用户提供的类型进行推导, 而是直接从参数进行推导, 从而限制住用户这种太过自由的行为呢?<p>当然! 这里可以让编译器自动推导出 <code>Input 与 Output 是相同的集合类型(除了元素的类型不同)</code> 这一我们想要的事实<br> 其实就是加个关联类型成员, 再将其添加一个 trait-bound 即可:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait Collection&LTT> {
+    type Output&LTM>: Collection&LTM>;
+    // ...
+}
+
+impl&LTT> Collection&LTT> for Vec&LTT> {
+    type Output&LTM> = Vec&LTM>;
+    // ...
+}
+
+fn floatify&LTInput>(ints: &Input) -> Input::Output&LTf32>
+where 
+    Input: Collection&LTi32>,
+{
+    let mut floats = Input::Output::&LTf32>::empty();
+    // ...
+}
+</code></pre><p>我们不想使用用户提供的类型注解, 所以直接用跟参数一起的关联类型, 避免了集合的类型能从 <code>Vec</code> 变成 <code>LinkedList</code><br> 值得注意的是, 有时候我们想要的是将选择的权力交给调用方, 也就是用户, 在 <a href=https://jedsek.xyz/posts/rust-typed-magic/gats/#family-trait>family-trait</a> 中会提到<hr><h2 id=functor>Functor</h2><p>(倘若你已经理解了先前的知识点, 这里理解起来应该也不算太难)<p>相信大家肯定用过 <code>map</code> 函数吧, 不管是 <code>std::iter::Iterator</code> 这个 trait 里面的 <code>map</code>, 还是 为 <code>array</code> 类型单独实现的 <code>map</code>, 反正你肯定用过就对了<br> 那么你有没有想过, 为什么 <code>map</code> 函数的实现就得分离开来呢? 能否有个统一的 trait, 比如 <code>Mapable</code>, 能够抽象这样的行为, 统一规范所有的实现呢?<p>在各种各样以函数式编程为主的语言中, 就存在着这样一个概念, 不过它不叫 <code>Mapable</code>, 而叫 <code>Functor</code><br> 让我们尝试利用 rust 中的 GATs 来实现这样一个抽象了 <code>map</code> 行为的 trait:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait Functor {
+    type Inner;      // Unwrapped/Unplugged (代表容器内部值的类型)
+    type Output&LTT>;  // Wrapper/Plugged (代表容器本身的类型, 其实是个接收类型创建新类型的类型构造器)
+
+    // 为了与原本的 `map` 区分开来, 我们将方法取名为 `fmap`  
+    fn fmap&LTF, B>(self, f: F) -> Self::Output&LTB>
+    where
+        F: FnMut(Self::Inner) -> B;
+}
+</code></pre><p>倘若你把 <code>Output&LTT></code> 改成 <code>Output</code>, 意图根据此来指代整个容器类型的概念......很抱歉, 你可以自己试一试<p>当我们实现时<figcaption>以 `Option` 类型为例 (`Result` 类型同理):</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl&LTT> Functor for Option&LTT> {
+    type Inner = T;
+    type Output&LTU> = Option&LTU>;
+
+    fn fmap&LTF, U>(self, mut f: F) -> Self::Output&LTU>
+    where
+        F: FnMut(Self::Inner) -> U,
+    {
+        #[allow(clippy::manual_map)]
+        match self {
+            None => None,
+            Some(t) => Some(f(t)),
+        }
+
+        // // 你也可以直接复用标准库中已经实现的 `map`  
+        // self.map(f)
+    }
+}
+</code></pre><figcaption>照猫画虎为 `array` 类型实现一下</figcaption><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>impl&LTT, const N: usize> Functor for [T; N] {
+    type Inner = T;
+    type Output&LTU> = [U; N];
+    fn fmap&LTF, B>(self, f: F) -> Self::Output&LTB>
+    where
+        F: FnMut(Self::Inner) -> B,
+    {
+        self.map(f)
+    }
+}
+</code></pre><p>倘若没有 GATs, 也就是没有 <code>type Output&LTT></code> 这里的类型构造器的情况下, 我们将只可能拥有同态的 functor<br> 也就是说 map 函数必须返回相同的类型, 即只能 <code>T -> T</code>, 而无法 <code>T -> U</code>, 我们此刻的是多态的 functor, 对应后者<p>还有其他非常多的来自函数式编程中的一些概念, 不过 <code>Functor</code> 算是其中最经典最简单的一个了<br> 其余在 rust 中的实现, 就请自行查阅与思考吧!<p><del>(我是不会告诉你其实是因为有些概念我也看不懂所以才不继续讲的)</del><h2 id=selffan-xing>Self泛型</h2><p>众所周知, rust 中的 <code>Self</code> 是一个类型别名, 指示你正在 <code>impl</code> 的那个类型, 如 <code>impl i32 { ... }</code> 时, <code>Self</code> 就指代 <code>i32</code><br> 同样众所周知的一点, 那就是 <code>Self</code> 是不能够添加泛型的, 你只能 <code>Self</code>, 而不能 <code>Self&LTT></code><p>让 Self 能够泛型化有什么用呢? 让我们以之前的 <code>Functor</code> 为例, 倘若其可以支持泛型:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait Functor&LTT>: HKT1 {
+    fn map&LTU, F>(self, f: F) -> Self::With&LTU>
+    where
+        F: FnMut(T) -> U;
+}
+
+impl&LTT> Functor&LTT> for Option&LTT> {
+    fn map&LTU, F>(self, f: F) -> Self&LTU> 
+    where
+        F: FnMut(T) -> U
+    {
+        self.map(f)
+    }
+}
+</code></pre><p>倘若用模式匹配的思想看待上述伪代码, 你会发现返回值的类型 <code>Self&LTU></code> 对应 <code>Option&LTU></code>, 则 <code>Self</code> 就自然对应了 <code>Option</code><br> 这在今天的 rust 中可能吗? 不, 这不可能, rust 中的类型都是具体类型, 比如 <code>M&LTT, U, Z></code>, 而不可能是 <code>M</code> 这种没写全的<br> <del>(当然诸如 haskell 等许多函数式编程语言都是可以的)</del><p>哭唧唧~~, 要是能够像这样写岂不是会写得很爽? (虽然本质上一样, 无非是先前那套 Functor 的关联类型给你隐藏起来了而已)<br> 但鉴于 GATs 的存在, 我们确实可以模拟出来:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait HKT1 {
+    type Inner1;
+    type With&LTT>;
+}
+
+impl&LTT> HKT1 for Option&LTT> {
+    type Inner1 = T;
+    type With&LTA> = Option&LTA>;
+}
+
+impl&LTT> Functor&LTT> for Option&LTT> {
+    fn map&LTU, F>(self, f: F) -> Self::With&LTU>
+    where
+        F: FnMut(T) -> U,
+    {
+        self.map(f)
+    }
+}
+</code></pre><p>本质上和先前的 Functor 是一样的, 只是我们包装起来稍微舒服点, 通过 <code>Self::With&LTU></code> 来模拟 <code>Self&LTU></code> 了<br> 你也可以模仿上面的 <code>HKT1</code>, 定义 <code>HKT2</code>, <code>HKT3</code> 等 trait, 并且实现:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait HKT2 {
+    type Inner1;
+    type Inner2;
+    type With&LTT, U>;
+}
+</code></pre><p>如果使用宏的话, 这些重复的定义都能够自动生成, 且自动为你指定的类型实现, 不过我懒得继续讲宏了, 就这样吧, 略过略过!!<br> (你可以把宏理解为操控字符串, 只要你懂得怎么自动生成这些代码, 就可以通过声明宏喂给编译器进行解析)<h2 id=family-trait>family-trait</h2><p><code>family-trait/type-family</code> 是种技巧, 也可以说是设计模式, 你能暴露出部分内部的实现, 然后让用户自行选择使用哪部分<p>其实理解起来很简单, 让我们看看下面几个类型:<ul><li><code>Rc&LTRefCell&LTT>></code><li><code>Rc&LTCell&LTT>></code><li><code>Arc&LTMutex&LTT>></code><li><code>Arc&LTRwLock&LTT>></code></ul><p>这些都是 <code>智能指针(smart-pointer)</code>, 且提供了内部可变性, 但是分为了单/多线程的情况<p>让我们再具体一点, 并且将问题只放在 <code>Rc</code> 与 <code>Arc</code> 上, 倘若你正在编写树状的数据结构, 用 <code>Rc</code> 或 <code>Arc</code> 来包裹树的结点<br> 如果你只用了 <code>Rc</code> 作为结点的类型, 那么你的用户就会开始吵闹: "喂, 为什么用的不是 <code>Arc</code> 啊? 你让我多线程情况下怎么用啊?"<br> 如果你只用了 <code>Arc</code> 作为结点的类型, 那么你的用户就会开始吵闹: "喂, 为什么用的不是 <code>Rc</code> 啊? 单线程情况下速度也太慢了吧?"<p>你汗流浃背, 为了满足两大需求不同的群体, 你选择......写两份代码! 粘贴, 复制, 将 <code>Rc</code> 替换为 <code>Arc</code>, 一气呵成<br> <del>(但面对天灾(指暴怒且嗷嗷待哺的用户们), 我们并非无计可施)</del><p>(其实写两份代码也是非常简单的正确方法捏~, 比如 <code>im-rc</code> 与 <code>im</code> 这两个 crate 就是这种情况)<p>倘若我们可以定义一个 <code>reference-counted(引用计数)</code> 的 <code>family</code><br> 但通过 GATs, 我们就可以先内部进行抽象, 然后再暴露出去让用户自己选择到底是 <code>Rc</code> 还是 <code>Arc</code> 了:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>trait RefCountedFamily {
+    type Pointer&LTT>;
+    fn new&LTT>(value: T) -> Self::Pointer&LTT>;
+    // ...
+    // ...
+}
+
+struct RcFamily;
+impl RefCountedFamily for RcFamily {
+    type Pointer&LTT> = Rc&LTT>;
+    fn new&LTT>(value: T) -> Self::Pointer&LTT> {
+        Rc::new(value)
+    }
+    // ...
+    // ...
+}
+
+struct ArcFamily;
+impl RefCountedFamily for ArcFamily {
+    type Pointer&LTT> = Arc&LTT>;
+    fn new&LTT>(value: T) -> Self::Pointer&LTT> {
+        Arc::new(value)
+    }
+    // ...
+    // ...
+}
+
+struct Container&LTP: RefCountedFamily> {
+    data: P::Pointer&LTi32>,
+}
+</code></pre><p>用户使用的时候可以通过传入诸如 <code>RcFamily</code> 这种实现了 <code>family-trait</code> 的具体类型, 以此选择了使用 <code>Rc</code>:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>let c = Container::&LTRcFamily> {
+    data: RcFamily::new(1),
+};
+</code></pre><p>对于最开始的 <code>Rc&LTRefCell&LTT>></code>, <code>Rc&LTCell&LTT>></code>, <code>Arc&LTMutex&LTT>></code>, <code>Arc&LTRwLock&LTT>></code> 也是同理<br> 你可以组合这些类型, 暴露出来, 然后交给用户进行选择, 抽象了 <code>线程安全/智能指针</code> 的选择<h2 id=jie-dai-die-dai>借贷迭代</h2><p>(以下部分代码来自 <a href=https://rust-lang.github.io/generic-associated-types-initiative/explainer/motivation.html>https://rust-lang.github.io/generic-associated-types-initiative/explainer/motivation.html</a>)<p><code>streaming-iterator</code>/<code>lending-iterator</code>, 这两个都是同一个东西, 请注意, 这和 <code>async(异步)</code> 生态中的 <code>Stream</code> 不是一个概念<br> 因为前者的名字可能会与 <code>async</code> 生态中的 <code>Stream</code> 一起造成困扰, 所以我个人更偏向于使用后者的名词<p><code>lending-iterator(借贷迭代器)</code>, 概念上来讲就是 GATs 版的 <code>std::iter::Iterator</code>, 并且关联类型的泛型参数是个 lifetime<p>先让我们重温下 <code>std::iter::Iterator</code> 相关的内容:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub trait Iterator {
+    type Item;
+    fn next(&mut self) -> Option&LTSelf::Item>;
+    // ...
+    // ...
+}
+</code></pre><p>里面有一个非泛型的关联类型 <code>Item</code>, 我们可以调用 <code>next</code> 方法进行迭代, 因此我们可以写出类似这样的代码:<pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>struct Iter<'a, T> {
+    data: &'a [T],
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option&LTSelf::Item> {
+        self.data.split_first().map(|(prefix_elem, suffix)| {
+            self.data = suffix;
+            prefix_elem
+        })
+    }
+}
+
+fn main() {
+    let mut iter = Iter { data: &[1, 2, 3] };
+    assert_eq!(iter.next(), Some(&1));
+    assert_eq!(iter.next(), Some(&2));
+    assert_eq!(iter.next(), Some(&3));
+    assert_eq!(iter.next(), None);
+}
+</code></pre><p>在这里, <code>Item</code> 的类型被指定为 <code>&'a T</code>, sd<hr><h1 id=can-kao-zi-liao>参考资料</h1><ul><li><a href=https://blog.rust-lang.org/2021/08/03/GATs-stabilization-push.html>https://blog.rust-lang.org/2021/08/03/GATs-stabilization-push.html</a><li><a href=https://rust-lang.github.io/rfcs/0195-associated-items.html#associated-types-engineering-benefits-for-generics>https://rust-lang.github.io/rfcs/0195-associated-items.html#associated-types-engineering-benefits-for-generics</a><li><a href=https://rust-lang.github.io/rfcs/1598-generic_associated_types.html>https://rust-lang.github.io/rfcs/1598-generic_associated_types.html</a><li><a href=https://rust-lang.github.io/generic-associated-types-initiative/explainer/motivation.html>https://rust-lang.github.io/generic-associated-types-initiative/explainer/motivation.html</a><li><a href=https://www.fpcomplete.com/blog/monads-gats-nightly-rust>https://www.fpcomplete.com/blog/monads-gats-nightly-rust</a><li><a href=https://typelevel.org/cats/typeclasses/functor.html>https://typelevel.org/cats/typeclasses/functor.html</a><li><a href=https://diogocastro.com/blog/2018/10/17/haskells-kind-system-a-primer>https://diogocastro.com/blog/2018/10/17/haskells-kind-system-a-primer</a><li><a href=https://smallcultfollowing.com/babysteps/blog/2016/11/09/associated-type-constructors-part-4-unifying-atc-and-hkt>https://smallcultfollowing.com/babysteps/blog/2016/11/09/associated-type-constructors-part-4-unifying-atc-and-hkt</a><li><a href=https://docs.rs/lending-iterator/latest/lending_iterator>https://docs.rs/lending-iterator/latest/lending_iterator</a><li><a href=https://smallcultfollowing.com/babysteps/blog/2023/05/09/giving-lending-and-async-closures>https://smallcultfollowing.com/babysteps/blog/2023/05/09/giving-lending-and-async-closures</a><li><a href=https://sabrinajewson.org/blog/the-better-alternative-to-lifetime-gats>https://sabrinajewson.org/blog/the-better-alternative-to-lifetime-gats</a></ul><p>感谢您的观看~</div></div><div class=bottom-footer style=height:140vh><div class="flex flex-col text-center border-t-2 py-8" style=background-color:#3b3b3b><span> <i class="iconfont icon-aixin text-red-500 align-middle"> </i> <span class=opacity-70> Jedsek </span> </span></div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><div class=pl-4><span> 哈喽, 哈喽!!!! 这里应该算是一个几乎不算彩蛋的小彩蛋吧? 只有当你浏览具有 目录|TOC 的文章时, 此段才会渲染<br> 其实这里是特意留白出来的底部 footer, 保证了当你点击右侧的 目录|TOC 且是最后一个 anchor 时, 一定能高亮它 <br> <br> 你可以想象一下, 如果没有这段 footer, 那么点击锚点时, 当最后一段目录的内容只有几行字时 <br> 由于底部行数过少, 就只能高亮到上面的锚点啦! <br> <br> 毕竟我高亮目录的实现思路, 是获取当前滚动的Y偏移量, 与锚点对应的 h1/h2 在博客左侧主体的Y偏移量, 进行计算来判断高亮哪个~ <br> 简单来说, 当 (window.scrollY + 200) >= anchor.offsetTop 时, 就会选择这个anchor, 随后进行高亮 <br> <br> 你可以试试在浏览器中按 F12 打开开发者工具, ctrl-c 选择此处 class 名称为 "bottom-footer" 的 div, 然后删除该结点 <br> 然后按 F12 退出开发者工具, 随后点击右侧的 目录|TOC 中的结点, 当最后一个 anchor 的内容过少时, 锚点无法被高亮 <br> 当然, 当最后一个 anchor 的行数稍微多一些时, 照样能够高亮最后一个目录 <br> <br> 如果你发现有无法高亮的情况, 嗯......那应该不太可能呢, 诶嘿～ </span><br><br></div><br></div></div><div class="sidebar flex-col w-48" style=display:flex><script>var show_sidebar_at_startup=(()=>{const a=document.getElementsByClassName(`sidebar`)[0];if(/Mobi|Android|iPhone/i.test(navigator.userAgent)&&a.style.display==`flex`){a.style.display=`none`}});show_sidebar_at_startup()</script><div class="nav flex flex-col gap-2 pb-auto opacity-100 text-center p-2" style=background-color:#2e2e2e><a class="text-xl font-medium no-underline hover:scale-110 duration-300" href=/ style=background-color:#2e2e2e> Jedsek's blog </a><span class="text-sm italic" style=background-color:#2e2e2e> 与其浊富 | 宁比清贫 </span><a href=/about style=background-color:#2e2e2e> <img class="my-avatar p-2 duration-300 hover:scale-110 hover:rotate-12 hover:rounded-3xl hover:opacity-80" src=/images/avatar.webp style=background-color:#2e2e2e> </a><nav class="px-2 pt-1"><ul class="list-none pl-0" id=menu><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/> <i class="iconfont icon-home left"></i> <span class="iconfont mr-10">首页</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/about> <i class="iconfont icon-about left"></i> <span class="iconfont mr-10">关于</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/sayings> <i class="iconfont icon-yulu left"> </i> <span class="iconfont mr-10">语录</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/categories> <i class="iconfont icon-Z-fenleidaohang left"></i> <span class="iconfont mr-10">分类</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/novels> <i class="iconfont icon-config_s left"></i> <span class="iconfont mr-10">小说</span> </a></ul></nav></div><script></script><div class="sticky top-0"><aside class="toc flex flex-col border-t-2 px-2 py-1 my-2"><div class="text-center text-2xl">目录|TOC</div><ul class="list-none px-2 text-left"><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#guan-lian-lei-xing>关联类型</a><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#ding-yi>定义</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#shu-ru-yu-shu-chu>输入与输出</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> └─<a class=text-sm href=#gong-cheng-xue-you-dian>工程学优点</a></span><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#fan-xing-guan-lian-lei-xing>泛型关联类型</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#type-kind>Type && Kind</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#lei-xing-gou-zao-qi>类型构造器</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#gao-jie-lei-xing-hkt>高阶类型(HKT)</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#yi-xie-li-zi>一些例子</a><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#rong-qi-lei-xing>容器类型</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#functor>Functor</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#selffan-xing>Self泛型</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> ├─<a class=text-sm href=#family-trait>family-trait</a></span><li class="py-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><span class=pl-2> └─<a class=text-sm href=#jie-dai-die-dai>借贷迭代</a></span><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#can-kao-zi-liao>参考资料</a></ul></aside></div></div><div class="float-botton flex"><a class="float-botton-item no-underline" href=#> <i class="iconfont icon-arrowup"></i> </a><div class=float-bottton-seperator></div><div class="float-botton-item float-botton-toggle-sidebar" type=button><i class="iconfont icon-sidebar"></i></div></div></div><script src=/scripts/custom/ul.js></script><script src=/scripts/third_party/lightgallery.min.js></script><script src=/scripts/custom/fancybox.js></script><script src=/scripts/custom/codeblock.js></script><script src=/scripts/custom/sidebar.js></script><script src=/scripts/custom/toc.js></script><script>hljs.highlightAll();document.addEventListener(`pjax:complete`,()=>{hljs.highlightAll()})</script>

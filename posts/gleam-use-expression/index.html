@@ -1,0 +1,218 @@
+<!doctype html><html class=scroll-smooth lang=zh-Hans><head><meta charset=utf-8><link crossorigin href=/manifest.json rel=manifest><script src=/scripts/custom/loadscript.js></script><link href=/styles/third_party/highlight.min.css rel=stylesheet><link href=/styles/third_party/highlight_themes/atom-one-dark.css rel=stylesheet><script src=/scripts/third_party/pjax.min.js></script><script src=/scripts/third_party/quicklink.umd.min.js></script><script src=/scripts/third_party/jquery.min.js></script><script src=/scripts/third_party/highlight/highlight.min.js></script><script src=/scripts/third_party/highlight/languages/rust.min.js></script><script src=/scripts/third_party/highlight/languages/nix.min.js></script><script src=/scripts/third_party/highlight/languages/haskell.min.js></script><script src=/scripts/third_party/highlight/languages/gleam.min.js></script><script src=/scripts/third_party/highlight/languages/scheme.min.js></script><link href=/iconfonts/iconfont.css rel=stylesheet><link href=/styles/custom/tailwind.css rel=stylesheet><link href=/styles/custom/style.css rel=stylesheet><script src=/scripts/custom/pjax.js></script><script src=/scripts/custom/pwa_install.js></script><script>document.documentElement.setAttribute(`data-theme`,`dark`)</script><script>if(navigator.serviceWorker!=null){navigator.serviceWorker.register(`/sw.js`).then((a=>{console.log(`Registered events at scope: `,a.scope)}))}</script><script>var GetCookie=(a=>{let e=0;var b=document.cookie.split(`;`);for(var c=e;c<b.length;c++){var d=b[c].split(`=`);if(a==d[e]){return unescape(d[1])}};return null});var SetCookie=((a,b)=>{document.cookie=a+ `=`+ escape(b)+ `; SameSite=None; Secure;`});var scrollback=(()=>{let a=`scroll`;if(GetCookie(a)!=null){const b=GetCookie(a);document.documentElement.scrollTo({top:b,left:0,behavior:`instant`})}})</script><script>window.addEventListener(`load`,()=>{quicklink.listen()})</script><script>loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}));document.addEventListener(`pjax:complete`,(()=>{loadExternalScript(`//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js`,(()=>{console.log(`External script loaded and executed.`)}))}))</script><title> Jedsek | Blog </title><body onscroll='SetCookie("scroll",document.documentElement.scrollTop);' class=flex id=body onload=scrollback();><script src=/scripts/custom/fireworks.js></script><div class="flex flex-rol grow"><div class="content w-80 flex flex-col break-words pr-2 border-2 grow border-b-0 border-neutral-800 animate-in fade-in slide-in-from-top-8 duration-1000" style=background-color:#3b3b3b><div class=break-words style=min-height:100vh><div class="p-4 flex justify-center text-4xl" style=opacity:.84>gleam中的use表达式</div><div class="p-4 flex align-center text-sm hover:scale-125 duration-300 w-fit" style=color:#999;margin-top:-16px;margin-left:auto;margin-right:auto><~~ 发表日期:2024-05-19 | 访问量: <span class=text-sm id=busuanzi_container_page_pv style=color:#999> <span class=text-sm id=busuanzi_value_page_pv style=color:#999></span></span> | 本文词数:1295 | 预计阅读时间:7分钟 ~~></div><div class=p-4><blockquote><p>了解下 gleam 语言中的 use 表达式吧</blockquote><span id=continue-reading></span><h1 id=bei-jing>背景</h1><p>gleam 是一门类型安全, 高度扩展, 语法友善, 表达力强的现代编程语言<br> gleam 在 v0.25 版本中引入了一种期待已久的新功能: <code>use</code><p>当我们敲代码 <code>open</code> 一个 <code>File</code> 时, 使用完毕之后就得调用对应的 <code>close</code> 方法, 保证文件正确关闭<br> 倘若每次都得由程序员手动保证调用 <code>close</code>, 不仅繁琐而且容易出错<p>在主流语言中, 你会发现各种各样的, 管理与释放资源的不同姿势:<ul><li>go/zig 中的 <code>defer</code> 所修饰的语句, 将在函数/代码块结束之前被调用<li>java 中的 <code>try-with-resource</code>, 让实现了 <code>AutoClosable</code> 接口的实例在 <code>try-catch</code> 后自动调用 <code>close()</code> 方法<li>c# 中的 <code>using</code>, 作用于实现了 <code>IDisposable</code> 接口的实例, 编译器将 <code>using</code> 自动转换为等价的 <code>try-finally</code><li>cpp/rust 中的 RAII, 让资源的生存期与变量的作用域相互绑定<li>......<li>......</ul><p>但是在 gleam 语言中, 已经存在了一个用于解决上述问题, 并且更加泛用的语法: <code>use</code><br> (类似的概念在其他语言中也存在, 这并非是 gleam 独创的, 借鉴了 ocaml, koka, roc, ml系列, 甚至 python)<hr><h1 id=suo-jin-wen-ti>缩进问题</h1><p>让我们来点例子, 假设存在这么一段代码:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub fn login(credentials) {
+  case authenticate(credentials) {
+    Error(e) -> Error(e)
+    Ok(user) ->
+      case fetch_profile(user) {
+        Error(e) -> Error(e)
+        Ok(profile) -> render_welcome(user, profile)
+      }
+  }
+}
+</code></pre><p><code>authenticate</code> 与 <code>fetch_profile</code> 会返回 <code>Result</code> 类型, 用 <code>Ok</code> 与 <code>Error</code> 分别表示成功与失败时的情况, 并包裹返回的值:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>import gleam/io
+
+pub type Result(a, e) {
+  Ok(a)
+  Error(e)
+}
+
+pub fn main() {
+  let a = Error("error")
+  let info = case a {
+    Ok(_) -> "It's ok"
+    Error(_) -> "It's error"
+  }
+  io.println(info)
+}
+</code></pre><p>再回过头去看前面的那段代码, 意思就是当前一步成功(Ok)时, 再运行下一步(Ok), 每一步失败时就返回错误(Error)<br> 但这有一个烦恼: 代码的缩进问题很严重, 倘若某个函数里调用了许多个会返回 <code>Result</code> 类型的函数......<p>于是 gleam 在早期的 v-0.9 版本引入了 <code>try</code> 语法, 可以将前文的代码写成如下的等价形式:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>// 当前一步失败时直接将 Error 作为这一段落的表达式, 无视后面的代码
+pub fn login(credentials) {
+  try user = authenticate(credentials)
+  try profile = fetch_profile(user)
+  render_welcome(user, profile)
+}
+</code></pre><p>这很好, 但仍然不够好, 缩进问题被解决了, 但没被完全解决, 要知道导致缩进复杂的情况还包括 <code>闭包/匿名函数/回调函数</code>:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub fn handle_request(request: HttpRequest) {
+  logger.span("handle_request", fn() {
+    database.connection(fn(conn) {
+      case request.method {
+        Post ->
+          case database.insert(conn, request.body) {
+            Ok(record) -> created_response(record)
+            Error(exc) -> bad_request_response(exc)
+          }
+        _ -> method_not_allowed_response()
+      }
+    })
+  })
+}
+</code></pre><p>显而易见, 这段代码虽然条理清晰, 但实话实说看见的第一眼并不容易阅读, 也因为缩进问题而不够美观<br> 当这种 <code>闭包/匿名函数/回调函数</code> 一多起来, 就会出现著名的 <code>回调函数地域(callback-hall)</code><p>gleam 团队给出的解决方案就是新的 <code>use</code> 表达式, 在保持简单概念的同时, 一口气同时处理 <code>错误处理/回调函数/资源管理</code> 时的缩进问题:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub fn handle_request(request: HttpRequest) {
+  use &LT- logger.span("handle_request")
+  use &LT- require_method(request, Post)
+  use conn &LT- database.connection()
+
+  case database.insert(conn, request.body) {
+    Ok(record) -> created_response(record)
+    Error(exc) -> bad_request_response(exc)
+  }
+}
+</code></pre><p>下面将正式介绍 <code>use</code> 表达式的一些使用例子<hr><h1 id=usebiao-da-shi>use表达式</h1><p>use 仅仅是一些语法糖, 它将后续的所有表达式转换为 <code>闭包/匿名函数</code>, 将此函数作为参数传递给 use 右侧的调用<p>例如, 假设有一个函数 <code>with_file</code>, 打开一个文件, 进行读写, 然后关闭该文件:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>fn open(file) {
+  todo
+}
+
+fn close(file) {
+  todo
+}
+
+// Define the function
+pub fn with_file(path, handler) {
+  let file = open(path)
+  handler(file)
+  close(file)
+}
+
+// Use it
+pub fn main() {
+  with_file("pokemon.txt", fn(file) {
+    write(file, "Oddish\n")
+    write(file, "Farfetch'd\n")
+  })
+}
+</code></pre><p><code>Note:</code><br> 在 gleam 语言中, 小写的参数表示泛型, 类型会根据传入的参数自动推导, 因此上面的例子是可以编译的, 并非伪代码<p>使用 <code>use</code> 无需额外缩进即可调用:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub fn main() {
+  use file &LT- with_file("pokemon.txt")
+  write(file, "Oddish\n")
+  write(file, "Farfetch'd\n")
+}
+</code></pre><p>(而且它不仅限于单个参数, 还可用于任何参数的函数, 包括不接受参数的函数)<p>这个 use 表达式是高度通用的, 不限于任何特定类型, 接口, 因此它可以应用于许多不同的事物<p><code>Re-Note:</code><br> 在 gleam 语言中, 小写的参数表示泛型, 类型会根据传入的参数自动推导, 因此看见下面例子中诸如 <code>defer</code> 时, 还请不要惊讶<p>下面是一些小例子:<ul><li>编写 http 中间件:</ul><pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub fn require_method(request, method, continue) {
+  case request.method == method {
+    True -> continue()
+    False -> method_not_allowed()
+  }
+}
+
+pub fn handle_request(request) {
+  use &LT- require_method(request, Post)
+  // ...
+}
+</code></pre><ul><li>复制 go/zig 等语言中的 <code>defer</code> 语法:</ul><pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>pub fn defer(cleanup, body) {
+  body()
+  cleanup()
+}
+
+pub fn main() {
+  use &LT- defer(fn() { io.println("Goodbye") })
+  io.println("Hello!")
+}
+</code></pre><ul><li>复制 elixir/haskell/scala 等语言中的 <code>for-comprehension</code>:</ul><pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>import gleam/list
+
+pub fn main() {
+  use letter &LT- list.flat_map(["a", "b", "c"])
+  use number &LT- list.map([1, 2, 3])
+  #(letter, number)
+}
+
+// [
+//   #("a", 1), #("a", 2), #("a", 3),
+//   #("b", 1), #("b", 2), #("b", 3),
+//   #("c", 1), #("c", 2), #("c", 3),
+// ]
+</code></pre><ul><li>或者复制 gleam 自己的 try 表达式(目前已被use取代):</ul><pre class=language-rust data-lang=rust><code class=language-rust data-lang=rust>pub fn attempt(result, transformation) {
+  case result {
+    Ok(x) -> transformation(x)
+    Error(y) -> Error(y)
+  }
+}
+
+pub fn main() {
+  use user &LT- attempt(authenticate(credentials))
+  use profile &LT- attempt(fetch_profile(user))
+  render_welcome(user, profile)
+}
+</code></pre><hr><h1 id=zong-jie>总结</h1><p>gleam 语言中的 <code>use</code> 是支持了 <code>句法变换(syntactic-transformation)</code> 这一概念的语法<br> 它相比较于主流语言更加泛用, 仅仅是函数应用的语法糖, 而非诸如 defer/using 等针对特定问题的特殊支持<p>这种概念在函数式编程语言中较为常见, 如 ocaml 中的 <code>let*</code>, koka 中的 <code>with</code>, <code>roc</code> 中的 <code>backpassing</code>, 与 <code>use</code> 都是十分相似的概念<p><code>use</code> 使得嵌套(nested)的函数可以被轻松地扁平化(flatten)<p>为了更加直观地体现这点, 我们可以编写一个函数 <code>twice</code>, 参数是一个闭包, 让该闭包可以运行两次:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>import gleam/io
+
+fn twice(f) {
+  f()
+  f()
+}
+
+fn main() {
+  twice(fn() { io.print("Message ") })
+}
+
+// Message Message
+</code></pre><p>使用 <code>use</code> 的等价写法:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>fn main() {
+  use &LT- twice()
+  io.print("Message ")
+}
+
+// Message Message
+</code></pre><p>当发生嵌套时(我们想调用两次, 三次, 更多次 <code>twice</code> 时), <code>use</code> 的优势会更加明显:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>fn main() {
+  twice(fn() { twice(fn() { twice(fn() { io.print("Message") }) }) })
+}
+
+// Message Message Message Message Message Message Message Message
+</code></pre><pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>fn main() {
+  use &LT- twice()
+  use &LT- twice()
+  use &LT- twice()
+  io.println("Message")
+}
+
+// Message Message Message Message Message Message Message Message
+</code></pre><p>于此同时, 因为 gleam 是门类型安全的语言, 我们在使用 use 时也会检查是否匹配类型的, 比如:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>fn print(self: List(String)) {
+  use &LT- bool.guard(when: self |> list.is_empty, return: io.print("Empty list"))
+
+  use i &LT- list.each(self)
+  io.println(i)
+}
+</code></pre><p>倘若当我们疏忽地写成了这样:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>fn print(self: List(String)) {
+  use &LT- bool.guard(when: self |> list.is_empty, return: "Empty list")
+
+  use i &LT- list.each(self)
+  io.println(i)
+}
+</code></pre><p>就会报错:<pre class=language-txt data-lang=txt><code class=language-txt data-lang=txt>Expected type:
+    String
+
+Found type:
+    Nil
+</code></pre><p>这里再来一个其他语言作为 <code>嵌套</code> 被 <code>扁平化</code> 的例子吧, 来自 rock 语言的 <code>backpassing</code>, 以下两段代码等价:<pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>readLicense : Filename -> Task License File.ReadErr
+readLicense = \filename ->
+    Task.await (File.readUtf8 settingsFilename) \settingsYaml ->
+        settingsYaml
+            |> Yaml.decode settingsDecoder
+            |> Task.fromResult
+            |> Task.mapFail InvalidFormat
+            |> Task.await \settings ->
+                Task.await (File.readUtf8 settings.projectFilename) \projectCsv ->
+                    projectCsv
+                        |> Csv.decode projectDecoder
+                        |> Task.fromResult
+                        |> Task.mapFail InvalidFormat
+                        |> Task.await \project ->
+                            Task.await (File.readUf8 project.licenseFilename) \licenseStr ->
+                                License.fromStr licenseStr
+                                    |> Task.fromResult
+                                    |> Task.mapFail InvalidFormat
+</code></pre><pre class=language-gleam data-lang=gleam><code class=language-gleam data-lang=gleam>readLicense : Filename -> Task License File.ReadErr
+readLicense = \filename ->
+    settingsYaml &LT- Task.await (File.readUtf8 settingsFilename)
+
+    settings &LT-
+        settingsYaml
+            |> Yaml.decode settingsDecoder
+            |> Task.fromResult
+            |> Task.mapFail InvalidFormat
+
+    projectCsv &LT- Task.await (File.readUtf8 settings.projectFilename)
+
+    project &LT-
+        projectCsv
+            |> Csv.decode projectDecoder
+            |> Task.fromResult
+            |> Task.mapFail InvalidFormat
+
+    licenseStr &LT-
+        Task.await (File.readUf8 project.licenseFilename)
+
+    License.fromStr licenseStr
+        |> Task.fromResult
+        |> Task.mapFail InvalidFormat
+</code></pre></div></div><div class=bottom-footer style=height:140vh><div class="flex flex-col text-center border-t-2 py-8" style=background-color:#3b3b3b><span> <i class="iconfont icon-aixin text-red-500 align-middle"> </i> <span class=opacity-70> Jedsek </span> </span></div><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><div class=pl-4><span> 哈喽, 哈喽!!!! 这里应该算是一个几乎不算彩蛋的小彩蛋吧? 只有当你浏览具有 目录|TOC 的文章时, 此段才会渲染<br> 其实这里是特意留白出来的底部 footer, 保证了当你点击右侧的 目录|TOC 且是最后一个 anchor 时, 一定能高亮它 <br> <br> 你可以想象一下, 如果没有这段 footer, 那么点击锚点时, 当最后一段目录的内容只有几行字时 <br> 由于底部行数过少, 就只能高亮到上面的锚点啦! <br> <br> 毕竟我高亮目录的实现思路, 是获取当前滚动的Y偏移量, 与锚点对应的 h1/h2 在博客左侧主体的Y偏移量, 进行计算来判断高亮哪个~ <br> 简单来说, 当 (window.scrollY + 200) >= anchor.offsetTop 时, 就会选择这个anchor, 随后进行高亮 <br> <br> 你可以试试在浏览器中按 F12 打开开发者工具, ctrl-c 选择此处 class 名称为 "bottom-footer" 的 div, 然后删除该结点 <br> 然后按 F12 退出开发者工具, 随后点击右侧的 目录|TOC 中的结点, 当最后一个 anchor 的内容过少时, 锚点无法被高亮 <br> 当然, 当最后一个 anchor 的行数稍微多一些时, 照样能够高亮最后一个目录 <br> <br> 如果你发现有无法高亮的情况, 嗯......那应该不太可能呢, 诶嘿～ </span><br><br></div><br></div></div><div class="sidebar flex-col w-48" style=display:flex><script>var show_sidebar_at_startup=(()=>{const a=document.getElementsByClassName(`sidebar`)[0];if(/Mobi|Android|iPhone/i.test(navigator.userAgent)&&a.style.display==`flex`){a.style.display=`none`}});show_sidebar_at_startup()</script><div class="nav flex flex-col gap-2 pb-auto opacity-100 text-center p-2" style=background-color:#2e2e2e><a class="text-xl font-medium no-underline hover:scale-110 duration-300" href=/ style=background-color:#2e2e2e> Jedsek's blog </a><span class="text-sm italic" style=background-color:#2e2e2e> 与其浊富 | 宁比清贫 </span><a href=/about style=background-color:#2e2e2e> <img class="my-avatar p-2 duration-300 hover:scale-110 hover:rotate-12 hover:rounded-3xl hover:opacity-80" src=/images/avatar.webp style=background-color:#2e2e2e> </a><nav class="px-2 pt-1"><ul class="list-none pl-0" id=menu><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/> <i class="iconfont icon-home left"></i> <span class="iconfont mr-10">首页</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/about> <i class="iconfont icon-about left"></i> <span class="iconfont mr-10">关于</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/sayings> <i class="iconfont icon-yulu left"> </i> <span class="iconfont mr-10">语录</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-top duration-1000"><a class="no-underline block" href=/categories> <i class="iconfont icon-Z-fenleidaohang left"></i> <span class="iconfont mr-10">分类</span> </a><li class="hover:scale-110 hover:opacity-60 hover:duration-300 hover:translate-x-2 hover:-translate-y-2 py-1 animate-in fade-in slide-in-from-bottom duration-1000"><a class="no-underline block" href=/novels> <i class="iconfont icon-config_s left"></i> <span class="iconfont mr-10">小说</span> </a></ul></nav></div><script></script><div class="sticky top-0"><aside class="toc flex flex-col border-t-2 px-2 py-1 my-2"><div class="text-center text-2xl">目录|TOC</div><ul class="list-none px-2 text-left"><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#bei-jing>背景</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#suo-jin-wen-ti>缩进问题</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#usebiao-da-shi>use表达式</a><li class="pb-0 leading-normal animate-in fade-in slide-in-from-bottom duration-1000"><a class=text-sm href=#zong-jie>总结</a></ul></aside></div></div><div class="float-botton flex"><a class="float-botton-item no-underline" href=#> <i class="iconfont icon-arrowup"></i> </a><div class=float-bottton-seperator></div><div class="float-botton-item float-botton-toggle-sidebar" type=button><i class="iconfont icon-sidebar"></i></div></div></div><script src=/scripts/custom/ul.js></script><script src=/scripts/third_party/lightgallery.min.js></script><script src=/scripts/custom/fancybox.js></script><script src=/scripts/custom/codeblock.js></script><script src=/scripts/custom/sidebar.js></script><script src=/scripts/custom/toc.js></script><script>hljs.highlightAll();document.addEventListener(`pjax:complete`,()=>{hljs.highlightAll()})</script>
